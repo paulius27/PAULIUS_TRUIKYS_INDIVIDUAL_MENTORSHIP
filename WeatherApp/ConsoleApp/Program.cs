@@ -1,7 +1,14 @@
 ﻿using BL;
 using DAL;
+using Microsoft.Extensions.Configuration;
 
-IWeatherRepository weatherRepository = new WeatherRepository();
+var config = new ConfigurationBuilder()
+    .AddUserSecrets<Program>()
+    .Build();
+
+string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
+
+IWeatherRepository weatherRepository = new WeatherRepository(apiKey);
 IWeatherService weatherService = new WeatherService(weatherRepository);
 
 while (true)
