@@ -20,4 +20,5 @@ while (true)
 
     var weatherDescription = await weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
     Console.WriteLine(weatherDescription);
+    Console.WriteLine();
 }

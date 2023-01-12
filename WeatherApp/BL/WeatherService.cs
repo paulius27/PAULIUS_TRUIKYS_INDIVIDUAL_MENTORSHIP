@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BL.Validation;
 using DAL;
 
@@ -20,8 +21,15 @@ namespace BL
             if (!_validation.IsCityNameValid(cityName))
                 return "Error: city name is not valid.";
             
-            double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
-            return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}.";
+            try
+            {
+                double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
+                return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}";
+            }
+            catch (Exception ex)
+            {
+                return $"Error: failed to get weather data ({ex.Message}).";
+            }
         }
 
         private string GetTemperatureComment(double temperature)
