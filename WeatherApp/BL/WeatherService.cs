@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using BL.Validation;
 using DAL;
 
 namespace BL
@@ -6,14 +7,19 @@ namespace BL
     public class WeatherService : IWeatherService
     {
         private readonly IWeatherRepository _weatherRepository;
+        private readonly IValidation _validation;
 
-        public WeatherService(IWeatherRepository weatherRepository)
+        public WeatherService(IWeatherRepository weatherRepository, IValidation validationService)
         {
             _weatherRepository = weatherRepository;
+            _validation = validationService;
         }
 
         public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
         {
+            if (!_validation.IsCityNameValid(cityName))
+                return "Error: city name is not valid.";
+            
             double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
             return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}.";
         }
