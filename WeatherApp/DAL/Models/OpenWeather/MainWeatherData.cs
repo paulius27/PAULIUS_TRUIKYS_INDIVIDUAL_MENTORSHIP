@@ -2,7 +2,7 @@
 
 namespace DAL.Models.OpenWeather
 {
-    public class Main
+    public class MainWeatherData
     {
         [JsonPropertyName("temp")]
         public double Temp { get; set; }
