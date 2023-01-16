@@ -17,11 +17,12 @@ namespace DAL
 
         public async Task<double> GetTemperatureByCityNameAsync(string cityName)
         {
-            using HttpResponseMessage response = await _httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}");
+            using var response = await _httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}");
             response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
 
-            string responseBody = await response.Content.ReadAsStringAsync();
-            WeatherResponse weather = JsonSerializer.Deserialize<WeatherResponse>(responseBody);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var weather = JsonSerializer.Deserialize<WeatherResponse>(responseBody, options);
 
             return weather.Main.Temp;
         }
