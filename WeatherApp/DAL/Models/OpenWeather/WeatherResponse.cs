@@ -14,7 +14,6 @@ namespace DAL.Models.OpenWeather
         [JsonPropertyName("base")]
         public string Base { get; set; }
 
-        [JsonPropertyName("main")]
         public MainWeatherData Main { get; set; }
 
         [JsonPropertyName("visibility")]

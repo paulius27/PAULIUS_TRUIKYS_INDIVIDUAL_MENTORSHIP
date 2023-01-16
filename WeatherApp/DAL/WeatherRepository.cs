@@ -1,7 +1,7 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DAL.Models.OpenWeather;
 
 namespace DAL
 {
@@ -21,7 +21,7 @@ namespace DAL
             response.EnsureSuccessStatusCode();
 
             string responseBody = await response.Content.ReadAsStringAsync();
-            Models.OpenWeather.WeatherResponse weather = JsonSerializer.Deserialize<Models.OpenWeather.WeatherResponse>(responseBody);
+            WeatherResponse weather = JsonSerializer.Deserialize<WeatherResponse>(responseBody);
 
             return weather.Main.Temp;
         }
