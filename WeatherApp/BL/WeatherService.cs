@@ -24,7 +24,7 @@ namespace BL
             try
             {
                 double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
-                return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}";
+                return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}.";
             }
             catch (Exception ex)
             {
