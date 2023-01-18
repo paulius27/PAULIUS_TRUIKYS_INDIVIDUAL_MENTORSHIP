@@ -34,7 +34,7 @@ namespace Tests
         }
 
         [Test]
-        [TestCase("x")]
+        [TestCase("   ")]
         [TestCase(" ")]
         public void IsCityNameValid_EmptyName_False(string cityName)
         {
