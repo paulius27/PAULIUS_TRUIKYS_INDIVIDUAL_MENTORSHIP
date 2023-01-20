@@ -1,5 +1,6 @@
 ﻿using BL;
 using BL.Validation;
+using ConsoleApp.Commands;
 using DAL;
 using Microsoft.Extensions.Configuration;
 
@@ -15,10 +16,31 @@ IWeatherService weatherService = new WeatherService(weatherRepository, validatio
 
 while (true)
 {
-    Console.Write("Enter city name: ");
-    var cityName = Console.ReadLine() ?? "";
+    try
+    {
+        Console.WriteLine("0. Close application");
+        Console.WriteLine("1. Current weather ");
+        Console.WriteLine("2. Weather forecast");
 
-    var weatherDescription = await weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
-    Console.WriteLine(weatherDescription);
-    Console.WriteLine();
+        Console.Write("Input: ");
+        var input = Console.ReadKey().KeyChar;
+        Console.WriteLine();
+
+        ICommand command = input switch
+        {
+            '0' => new CloseApplicationCommand(),
+            '1' => new CurrentWeatherCommand(weatherService),
+            '2' => new ForecastWeatherCommand(weatherService),
+            _   => throw new ArgumentException($"Input \"{input}\" is not supported.")
+        };
+
+        await command.Execute();
+
+        Console.WriteLine();
+    }
+    catch (ArgumentException ex)
+    {
+        Console.WriteLine(ex.Message);
+        Console.WriteLine();
+    }
 }
