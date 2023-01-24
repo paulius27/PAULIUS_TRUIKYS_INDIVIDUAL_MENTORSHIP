@@ -6,11 +6,12 @@ using Microsoft.Extensions.Configuration;
 
 var config = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
+    .AddJsonFile("appsettings.json")
     .Build();
 
 string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
 
-IValidation validationService = new Validation();
+IValidation validationService = new Validation(config);
 IGeocodingRepository geocodingRepository = new GeocodingRepository(apiKey);
 IWeatherRepository weatherRepository = new WeatherRepository(apiKey);
 IWeatherService weatherService = new WeatherService(geocodingRepository, weatherRepository, validationService);

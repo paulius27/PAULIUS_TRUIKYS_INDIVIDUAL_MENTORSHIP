@@ -37,6 +37,12 @@ namespace BL
 
         public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)
         {
+            if (!_validation.IsCityNameValid(cityName))
+                return "Error: city name is not valid.";
+
+            if (!_validation.AreForecastDaysValid(days))
+                return "Error: forecast days are not valid.";
+
             try
             {
                 var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
