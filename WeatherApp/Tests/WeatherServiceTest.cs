@@ -8,6 +8,7 @@ namespace Tests
 {
     public class WeatherServiceTest
     {
+        private Mock<IGeocodingRepository> _geocodingRepository;
         private Mock<IWeatherRepository> _weatherRepository;
         private Mock<IValidation> _validation;
 
@@ -16,10 +17,11 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            _weatherRepository= new Mock<IWeatherRepository>();
+            _geocodingRepository = new Mock<IGeocodingRepository>();
+            _weatherRepository = new Mock<IWeatherRepository>();
             _validation = new Mock<IValidation>();
 
-            _weatherService = new WeatherService(_weatherRepository.Object, _validation.Object);
+            _weatherService = new WeatherService(_geocodingRepository.Object, _weatherRepository.Object, _validation.Object);
         }
 
         [Test]

@@ -1,15 +1,22 @@
 using BL.Validation;
+using Microsoft.Extensions.Configuration;
+using Moq;
 
 namespace Tests
 {
     public class ValidationTest
     {
+        private Mock<IConfiguration> _config;
         private IValidation _validation;
 
         [SetUp]
         public void Setup()
         {
-            _validation = new Validation();
+            _config = new Mock<IConfiguration>();
+            _config.SetupGet(c => c["WeatherForecast:MinDays"]).Returns("1");
+            _config.SetupGet(c => c["WeatherForecast:MaxDays"]).Returns("7");
+
+            _validation = new Validation(_config.Object);
         }
 
         [Test]
