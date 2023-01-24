@@ -11,8 +11,19 @@ public class ForecastWeatherCommand : ICommand
         _weatherService = weatherService;
     }
 
-    public Task Execute()
+    public async Task Execute()
     {
-        throw new NotImplementedException();
+        Console.Write("Enter city name: ");
+        var cityName = Console.ReadLine() ?? "";
+
+        Console.Write("Enter how many days to forecast: ");
+        if (!int.TryParse(Console.ReadLine(), out int days)) 
+        {
+            Console.WriteLine("Input for 'days' must be a number.");
+            return;
+        }
+
+        var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, days);
+        Console.Write(forecastDescription);
     }
 }

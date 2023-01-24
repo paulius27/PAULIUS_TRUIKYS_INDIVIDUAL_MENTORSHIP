@@ -13,15 +13,15 @@ string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Wea
 IValidation validationService = new Validation();
 IGeocodingRepository geocodingRepository = new GeocodingRepository(apiKey);
 IWeatherRepository weatherRepository = new WeatherRepository(apiKey);
-IWeatherService weatherService = new WeatherService(weatherRepository, validationService);
+IWeatherService weatherService = new WeatherService(geocodingRepository, weatherRepository, validationService);
 
 while (true)
 {
     try
     {
-        Console.WriteLine("0. Close application");
-        Console.WriteLine("1. Current weather ");
+        Console.WriteLine("1. Current weather");
         Console.WriteLine("2. Weather forecast");
+        Console.WriteLine("0. Close application");
 
         Console.Write("Input: ");
         var input = Console.ReadKey().KeyChar;
