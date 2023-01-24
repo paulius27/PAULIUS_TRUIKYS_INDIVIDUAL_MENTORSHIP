@@ -11,6 +11,7 @@ var config = new ConfigurationBuilder()
 string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
 
 IValidation validationService = new Validation();
+IGeocodingRepository geocodingRepository = new GeocodingRepository(apiKey);
 IWeatherRepository weatherRepository = new WeatherRepository(apiKey);
 IWeatherService weatherService = new WeatherService(weatherRepository, validationService);
 
