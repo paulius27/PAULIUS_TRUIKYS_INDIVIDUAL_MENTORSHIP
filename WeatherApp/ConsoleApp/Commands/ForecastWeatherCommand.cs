@@ -24,6 +24,6 @@ public class ForecastWeatherCommand : ICommand
         }
 
         var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, days);
-        Console.Write(forecastDescription);
+        Console.WriteLine(forecastDescription);
     }
 }

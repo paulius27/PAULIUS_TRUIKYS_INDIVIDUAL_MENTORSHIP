@@ -52,14 +52,15 @@ namespace BL
                 var forecasts = await _weatherRepository.GetForecastByCoordinatesAsync(coordinates, startDate, endDate);
 
                 var i = 0;
-                var sb = new StringBuilder();
-                sb.AppendLine($"{cityName} weather forecast:");
+                var sb = new StringBuilder($"{cityName} weather forecast:");
 
                 foreach (var forecast in forecasts)
                 {
-                    i++;
                     double temperature = Math.Round((forecast.MinTemperature + forecast.MaxTemperature) / 2, 2);
-                    sb.AppendLine($"Day {i}: {temperature} °C. {GetTemperatureComment(temperature)}.");
+
+                    i++;
+                    sb.AppendLine();
+                    sb.Append($"Day {i}: {temperature} °C. {GetTemperatureComment(temperature)}.");
                 }
 
                 return sb.ToString();
