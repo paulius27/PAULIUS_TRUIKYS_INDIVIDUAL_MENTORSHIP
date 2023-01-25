@@ -42,7 +42,7 @@ namespace IntegrationTests
 
             var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
 
-            Assert.That(weatherDescription, Does.Match("In " + cityName + " (\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
+            Assert.That(weatherDescription, Does.Match("In " + cityName + " -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace IntegrationTests
 
             var weatherDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
 
-            Assert.That(weatherDescription, Does.Match(cityName + " weather forecast:(\r\n|\r|\n)Day 1: (\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
+            Assert.That(weatherDescription, Does.Match(cityName + " weather forecast:(\r\n|\r|\n)Day 1: -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
         }
     }
 }
