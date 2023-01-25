@@ -1,6 +1,7 @@
 ﻿using BL;
 using BL.Validation;
 using DAL;
+using DAL.Models;
 using Moq;
 using Newtonsoft.Json;
 
@@ -59,6 +60,58 @@ namespace Tests
             var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
 
             Assert.That(weatherDescription, Is.EqualTo($"In {cityName} {temperature} °C. {expectedTemperatureComment}."));
+        }
+
+        [Test]
+        public async Task GetForecastDescriptionByCityNameAsync_CityValidationFail_ErrorMessage()
+        {
+            _validation.Setup(v => v.IsCityNameValid(It.IsAny<string>())).Returns(false);
+
+            var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync("", 1);
+
+            Assert.That(forecastDescription, Is.EqualTo("Error: city name is not valid."));
+        }
+
+        [Test]
+        public async Task GetForecastDescriptionByCityNameAsync_DaysValidationFail_ErrorMessage()
+        {
+            _validation.Setup(v => v.IsCityNameValid(It.IsAny<string>())).Returns(true);
+            _validation.Setup(v => v.AreForecastDaysValid(It.IsAny<int>())).Returns(false);
+
+            var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync("London", 1);
+
+            Assert.That(forecastDescription, Is.EqualTo("Error: forecast days are not valid."));
+        }
+
+        [Test]
+        public async Task GetForecastDescriptionByCityNameAsync_GetCoordinatesFail_ErrorMessage()
+        {
+            _validation.Setup(v => v.IsCityNameValid(It.IsAny<string>())).Returns(true);
+            _validation.Setup(v => v.AreForecastDaysValid(It.IsAny<int>())).Returns(true);
+            _geocodingRepository.Setup(g => g.GetCoordinatesByCityNameAsync(It.IsAny<string>())).ThrowsAsync(new JsonException("error"));
+
+            var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync("London", 1);
+
+            Assert.That(forecastDescription, Is.EqualTo("Error: failed to get weather forecast data (error)."));
+        }
+
+        [Test]
+        public async Task GetForecastDescriptionByCityNameAsync_GetForecastSuccess_ForecastDescription()
+        {
+            string cityName = "London";
+            var forecasts = new List<WeatherForecast>
+            {
+                new WeatherForecast(new DateTime(2023, 1, 25), 7, 9)
+            };
+
+            _validation.Setup(v => v.IsCityNameValid(It.IsAny<string>())).Returns(true);
+            _validation.Setup(v => v.AreForecastDaysValid(It.IsAny<int>())).Returns(true);
+            _geocodingRepository.Setup(g => g.GetCoordinatesByCityNameAsync(It.IsAny<string>())).ReturnsAsync(It.IsAny<Coordinates>());
+            _weatherRepository.Setup(w => w.GetForecastByCoordinatesAsync(It.IsAny<Coordinates>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(forecasts);
+
+            var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
+
+            Assert.That(forecastDescription, Is.EqualTo($"{cityName} weather forecast:{Environment.NewLine}Day 1: 8 °C. It's fresh."));
         }
     }
 }
