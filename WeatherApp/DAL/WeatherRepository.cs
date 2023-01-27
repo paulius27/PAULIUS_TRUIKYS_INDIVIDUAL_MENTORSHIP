@@ -12,17 +12,19 @@ namespace DAL
 {
     public class WeatherRepository : IWeatherRepository
     {
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
-        private readonly HttpClient _httpClient = new HttpClient();
 
-        public WeatherRepository(string apiKey)
+        public WeatherRepository(IHttpClientFactory httpClientFactory, string apiKey)
         {
+            _httpClientFactory = httpClientFactory;
             _apiKey = apiKey;
         }
 
         public async Task<double> GetTemperatureByCityNameAsync(string cityName)
         {
-            using var response = await _httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}");
+            using var httpClient = _httpClientFactory.CreateClient();
+            using var response = await httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}");
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -34,7 +36,8 @@ namespace DAL
 
         public async Task<IEnumerable<WeatherForecast>> GetForecastByCoordinatesAsync(Coordinates coordinates, DateTime startDate, DateTime endDate)
         {
-            using var response = await _httpClient.GetAsync($"https://api.open-meteo.com/v1/forecast?latitude={coordinates.Latitude.ToString(CultureInfo.InvariantCulture)}&longitude={coordinates.Longitude.ToString(CultureInfo.InvariantCulture)}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&start_date={startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}&end_date={endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}");
+            using var httpClient = _httpClientFactory.CreateClient();
+            using var response = await httpClient.GetAsync($"https://api.open-meteo.com/v1/forecast?latitude={coordinates.Latitude.ToString(CultureInfo.InvariantCulture)}&longitude={coordinates.Longitude.ToString(CultureInfo.InvariantCulture)}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&start_date={startDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}&end_date={endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}");
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
 

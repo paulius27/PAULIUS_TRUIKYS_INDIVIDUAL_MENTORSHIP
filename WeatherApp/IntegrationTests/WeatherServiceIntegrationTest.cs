@@ -2,6 +2,8 @@ using BL.Validation;
 using BL;
 using DAL;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IntegrationTests
 {
@@ -12,6 +14,14 @@ namespace IntegrationTests
         [SetUp]
         public void Setup()
         {
+            IHttpClientFactory httpClientFactory = null;
+            var host = new HostBuilder()
+                .ConfigureServices((hostContext, services) =>
+                {
+                    httpClientFactory = services.AddHttpClient().BuildServiceProvider().GetService<IHttpClientFactory>();
+                })
+                .Build();
+
             var config = new ConfigurationBuilder()
                 .AddUserSecrets<WeatherServiceIntegrationTest>()
                 .AddJsonFile("integrationsettings.json")
@@ -20,8 +30,8 @@ namespace IntegrationTests
             string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
 
             var validationService = new Validation(config);
-            var geocodingRepository = new GeocodingRepository(apiKey);
-            var weatherRepository = new WeatherRepository(apiKey);
+            var geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
+            var weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
             _weatherService = new WeatherService(geocodingRepository, weatherRepository, validationService);
         }
 

@@ -3,6 +3,17 @@ using BL.Validation;
 using ConsoleApp.Commands;
 using DAL;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+IHttpClientFactory httpClientFactory = null;
+var host = new HostBuilder()
+    .ConfigureServices((hostContext, services) =>
+    {
+        httpClientFactory = services.AddHttpClient().BuildServiceProvider().GetService<IHttpClientFactory>();
+    })
+    .UseConsoleLifetime()
+    .Build();
 
 var config = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
@@ -12,8 +23,8 @@ var config = new ConfigurationBuilder()
 string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
 
 IValidation validationService = new Validation(config);
-IGeocodingRepository geocodingRepository = new GeocodingRepository(apiKey);
-IWeatherRepository weatherRepository = new WeatherRepository(apiKey);
+IGeocodingRepository geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
+IWeatherRepository weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
 IWeatherService weatherService = new WeatherService(geocodingRepository, weatherRepository, validationService);
 
 while (true)
