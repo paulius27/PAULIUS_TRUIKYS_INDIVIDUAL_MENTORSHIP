@@ -2,6 +2,7 @@
 using DAL.Models.OpenWeather;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -25,8 +26,11 @@ namespace DAL
             var responseBody = await response.Content.ReadAsStringAsync();
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var geocoding = JsonSerializer.Deserialize<List<GeocodingResponse>>(responseBody, options).First();
+            var geocoding = JsonSerializer.Deserialize<List<GeocodingResponse>>(responseBody, options).FirstOrDefault();
 
+            if (geocoding == null)
+                throw new KeyNotFoundException("city coordinates not found");
+            
             return new Coordinates(geocoding.Lat, geocoding.Lon);
         }
     }
