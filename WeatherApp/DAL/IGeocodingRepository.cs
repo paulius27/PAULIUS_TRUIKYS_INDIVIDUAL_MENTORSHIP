@@ -5,6 +5,6 @@ namespace DAL
 {
     public interface IGeocodingRepository
     {
-        public Task<Coordinates> GetCoordinatesByCityNameAsync(string cityName);
+        Task<Coordinates> GetCoordinatesByCityNameAsync(string cityName);
     }
 }

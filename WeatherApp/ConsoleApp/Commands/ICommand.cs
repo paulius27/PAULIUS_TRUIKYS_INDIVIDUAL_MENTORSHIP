@@ -2,5 +2,5 @@
 
 public interface ICommand
 {
-    public Task Execute();
+    Task Execute();
 }

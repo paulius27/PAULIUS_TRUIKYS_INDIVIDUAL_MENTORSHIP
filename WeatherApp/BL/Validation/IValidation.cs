@@ -2,8 +2,8 @@
 {
     public interface IValidation
     {
-        public bool IsCityNameValid(string cityName);
+        bool IsCityNameValid(string cityName);
 
-        public bool AreForecastDaysValid(int days);
+        bool AreForecastDaysValid(int days);
     }
 }
