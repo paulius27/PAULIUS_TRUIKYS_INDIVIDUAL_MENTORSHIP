@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
 
 namespace BL.Validation
 {
@@ -11,8 +12,12 @@ namespace BL.Validation
         public Validation(IConfiguration config)
         {
             _config = config;
-            _forecastMinDays = int.Parse(_config["WeatherForecast:MinDays"]);
-            _forecastMaxDays = int.Parse(_config["WeatherForecast:MaxDays"]);
+
+            if (!int.TryParse(_config["WeatherForecast:MinDays"], out _forecastMinDays))
+                _forecastMinDays = 1;
+
+            if(!int.TryParse(_config["WeatherForecast:MaxDays"], out _forecastMaxDays))
+                _forecastMaxDays = 7;
         }
 
         public bool IsCityNameValid(string cityName) => !string.IsNullOrEmpty(cityName?.Trim());
