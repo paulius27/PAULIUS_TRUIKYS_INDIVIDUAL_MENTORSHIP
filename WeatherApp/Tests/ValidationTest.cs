@@ -29,23 +29,33 @@ namespace Tests
             Assert.IsTrue(validationResult);
         }
 
-
         [Test]
-        public void IsCityNameValid_NullName_False()
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase(null)]
+        public void IsCityNameValid_InvalidName_False(string cityName)
         {
-            string cityName = null;
-
             var validationResult = _validation.IsCityNameValid(cityName);
 
             Assert.IsFalse(validationResult);
         }
 
         [Test]
-        [TestCase("")]
-        [TestCase(" ")]
-        public void IsCityNameValid_EmptyName_False(string cityName)
+        public void AreForecastDaysValid_ValidDays_True()
         {
-            var validationResult = _validation.IsCityNameValid(cityName);
+            var days = 5;
+
+            var validationResult = _validation.AreForecastDaysValid(days);
+
+            Assert.IsTrue(validationResult);
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(10)]
+        public void AreForecastDaysValid_InvalidDays_False(int days)
+        {
+            var validationResult = _validation.AreForecastDaysValid(days);
 
             Assert.IsFalse(validationResult);
         }
