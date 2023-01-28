@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using BL.Validation;
 using DAL;
@@ -7,11 +8,13 @@ namespace BL
 {
     public class WeatherService : IWeatherService
     {
+        private readonly IGeocodingRepository _geocodingRepository;
         private readonly IWeatherRepository _weatherRepository;
         private readonly IValidation _validation;
 
-        public WeatherService(IWeatherRepository weatherRepository, IValidation validationService)
+        public WeatherService(IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidation validationService)
         {
+            _geocodingRepository = geocodingRepository;
             _weatherRepository = weatherRepository;
             _validation = validationService;
         }
@@ -29,6 +32,42 @@ namespace BL
             catch (Exception ex)
             {
                 return $"Error: failed to get weather data ({ex.Message}).";
+            }
+        }
+
+        public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)
+        {
+            if (!_validation.IsCityNameValid(cityName))
+                return "Error: city name is not valid.";
+
+            if (!_validation.AreForecastDaysValid(days))
+                return "Error: forecast days are not valid.";
+
+            try
+            {
+                var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
+
+                DateTime startDate = DateTime.Now.AddDays(1);
+                DateTime endDate = startDate.AddDays(days - 1);
+                var forecasts = await _weatherRepository.GetForecastByCoordinatesAsync(coordinates, startDate, endDate);
+
+                var i = 0;
+                var sb = new StringBuilder($"{cityName} weather forecast:");
+
+                foreach (var forecast in forecasts)
+                {
+                    double temperature = Math.Round((forecast.MinTemperature + forecast.MaxTemperature) / 2, 2);
+
+                    i++;
+                    sb.AppendLine();
+                    sb.Append($"Day {i}: {temperature} °C. {GetTemperatureComment(temperature)}.");
+                }
+
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                return $"Error: failed to get weather forecast data ({ex.Message}).";
             }
         }
 

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace BL
 {
     public interface IWeatherService
     {
-        public Task<string> GetWeatherDescriptionByCityNameAsync(string cityName);
+        Task<string> GetWeatherDescriptionByCityNameAsync(string cityName);
+
+        Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days);
     }
 }
