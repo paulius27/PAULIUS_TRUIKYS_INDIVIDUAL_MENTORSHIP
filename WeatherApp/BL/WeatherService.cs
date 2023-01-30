@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BL.Validation;
 using DAL;
+using Microsoft.Extensions.Configuration;
 
 namespace BL
 {
@@ -16,12 +17,17 @@ namespace BL
         private readonly IValidator<string> _cityNameValidator;
         private readonly IValidator<int> _forecastDaysValidator;
 
-        public WeatherService(IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidator<string> cityNameValidator, IValidator<int> forecastDaysValidator)
+        private readonly bool _showDebugInfo;
+
+        public WeatherService(IConfiguration config, IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidator<string> cityNameValidator, IValidator<int> forecastDaysValidator)
         {
             _geocodingRepository = geocodingRepository;
             _weatherRepository = weatherRepository;
-            _cityNameValidator= cityNameValidator;
-            _forecastDaysValidator= forecastDaysValidator;
+            _cityNameValidator = cityNameValidator;
+            _forecastDaysValidator = forecastDaysValidator;
+
+            if (!bool.TryParse(config["FindMaxTemperature:ShowDebugInfo"], out _showDebugInfo))
+                _showDebugInfo = true;
         }
 
         public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
@@ -102,10 +108,13 @@ namespace BL
             else
                 sb.Append($"Error, no successful requests. Failed requests count: {failedRequests}.");
 
-            foreach (var result in results) 
+            if (_showDebugInfo) 
             {
-                sb.AppendLine();
-                sb.Append(result.DebugInfo);
+                foreach (var result in results)
+                {
+                    sb.AppendLine();
+                    sb.Append(result.DebugInfo);
+                }
             }
 
             return sb.ToString();

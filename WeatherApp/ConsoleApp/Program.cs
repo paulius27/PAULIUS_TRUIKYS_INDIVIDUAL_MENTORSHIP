@@ -26,7 +26,7 @@ IValidator<string> cityNameValidator = new CityNameValidator();
 IValidator<int> forecastDaysValidator = new ForecastDaysValidator(config);
 IGeocodingRepository geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
 IWeatherRepository weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
-IWeatherService weatherService = new WeatherService(geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
+IWeatherService weatherService = new WeatherService(config, geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
 
 while (true)
 {
