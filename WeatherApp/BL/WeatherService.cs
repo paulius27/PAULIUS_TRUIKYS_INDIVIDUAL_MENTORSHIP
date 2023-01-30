@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using BL.Validation;
@@ -83,6 +84,11 @@ namespace BL
                 return "Good weather";
             else
                 return "It's time to go to the beach";
+        }
+
+        public Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -34,6 +34,7 @@ while (true)
     {
         Console.WriteLine("1. Current weather");
         Console.WriteLine("2. Weather forecast");
+        Console.WriteLine("3. Find max temperature");
         Console.WriteLine("0. Close application");
 
         Console.Write("Input: ");
@@ -45,6 +46,7 @@ while (true)
             '0' => new CloseApplicationCommand(),
             '1' => new CurrentWeatherCommand(weatherService),
             '2' => new ForecastWeatherCommand(weatherService),
+            '3' => new FindMaxTemperatureCommand(weatherService),
             _   => throw new ArgumentException($"Input \"{input}\" is not supported.")
         };
 
