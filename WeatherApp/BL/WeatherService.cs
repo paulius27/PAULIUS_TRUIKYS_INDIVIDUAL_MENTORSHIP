@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BL.Validation;
@@ -74,6 +76,59 @@ namespace BL
             }
         }
 
+        public async Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)
+        {
+            var requests = new List<Task<(double? Temperature, string DebugInfo)>>();
+
+            foreach (var cityName in cityNames) 
+            {
+                var request = GetTemperatureWithDebugInfoAsync(cityName);
+                requests.Add(request);
+            }
+
+            var results = await Task.WhenAll(requests);
+
+            var temperatures = results.Select(r => r.Temperature).ToList();
+            var maxTemperature = temperatures.Max();
+            var maxTemperatureIndex = temperatures.IndexOf(maxTemperature);
+
+            var successfulRequests = temperatures.Where(t => t != null).Count();
+            var failedRequests = temperatures.Count - successfulRequests;
+
+            var sb = new StringBuilder();
+
+            if (successfulRequests > 0) 
+                sb.Append($"City with the highest temperature of {maxTemperature} °C: {cityNames.ElementAt(maxTemperatureIndex)}. Successful request count: {successfulRequests}, failed: {failedRequests}.");
+            else
+                sb.Append($"Error, no successful requests. Failed requests count: {failedRequests}.");
+
+            foreach (var result in results) 
+            {
+                sb.AppendLine();
+                sb.Append(result.DebugInfo);
+            }
+
+            return sb.ToString();
+        }
+
+        private async Task<(double? Temperature, string DebugInfo)> GetTemperatureWithDebugInfoAsync(string cityName)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            if (!_cityNameValidator.Validate(cityName))
+                return (null, $"City: {cityName}. Error: city name is not valid. Timer: {sw.Elapsed.TotalMilliseconds} ms.");
+
+            try
+            {
+                double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
+                return (temperature, $"City: {cityName}. Temperature: {temperature} °C. Timer: {sw.Elapsed.TotalMilliseconds} ms.");
+            }
+            catch (Exception ex)
+            {
+                return (null, $"City: {cityName}. Error: failed to get weather data ({ex.Message}). Timer: {sw.Elapsed.TotalMilliseconds} ms.");
+            }
+        }
+
         private string GetTemperatureComment(double temperature)
         {
             if (temperature < 0)
@@ -84,11 +139,6 @@ namespace BL
                 return "Good weather";
             else
                 return "It's time to go to the beach";
-        }
-
-        public Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)
-        {
-            throw new NotImplementedException();
         }
     }
 }
