@@ -22,10 +22,11 @@ var config = new ConfigurationBuilder()
 
 string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
 
-IValidation validationService = new Validation(config);
+IValidator<string> cityNameValidator = new CityNameValidator();
+IValidator<int> forecastDaysValidator = new ForecastDaysValidator(config);
 IGeocodingRepository geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
 IWeatherRepository weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
-IWeatherService weatherService = new WeatherService(geocodingRepository, weatherRepository, validationService);
+IWeatherService weatherService = new WeatherService(geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
 
 while (true)
 {

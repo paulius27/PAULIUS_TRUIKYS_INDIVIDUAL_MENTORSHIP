@@ -10,18 +10,20 @@ namespace BL
     {
         private readonly IGeocodingRepository _geocodingRepository;
         private readonly IWeatherRepository _weatherRepository;
-        private readonly IValidation _validation;
+        private readonly IValidator<string> _cityNameValidator;
+        private readonly IValidator<int> _forecastDaysValidator;
 
-        public WeatherService(IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidation validationService)
+        public WeatherService(IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidator<string> cityNameValidator, IValidator<int> forecastDaysValidator)
         {
             _geocodingRepository = geocodingRepository;
             _weatherRepository = weatherRepository;
-            _validation = validationService;
+            _cityNameValidator= cityNameValidator;
+            _forecastDaysValidator= forecastDaysValidator;
         }
 
         public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
         {
-            if (!_validation.IsCityNameValid(cityName))
+            if (!_cityNameValidator.Validate(cityName))
                 return "Error: city name is not valid.";
             
             try
@@ -37,10 +39,10 @@ namespace BL
 
         public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)
         {
-            if (!_validation.IsCityNameValid(cityName))
+            if (!_cityNameValidator.Validate(cityName))
                 return "Error: city name is not valid.";
 
-            if (!_validation.AreForecastDaysValid(days))
+            if (!_forecastDaysValidator.Validate(days))
                 return "Error: forecast days are not valid.";
 
             try

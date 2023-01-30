@@ -29,10 +29,11 @@ namespace IntegrationTests
 
             string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
 
-            var validationService = new Validation(config);
+            var cityNameValidator = new CityNameValidator();
+            var forecastDaysValidator = new ForecastDaysValidator(config);
             var geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
             var weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
-            _weatherService = new WeatherService(geocodingRepository, weatherRepository, validationService);
+            _weatherService = new WeatherService(geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
         }
 
         [Test]
