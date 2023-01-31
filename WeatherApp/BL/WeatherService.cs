@@ -87,20 +87,31 @@ namespace BL
             var requests = new List<Task<(double? Temperature, string DebugInfo)>>();
 
             foreach (var cityName in cityNames) 
-            {
-                var request = GetTemperatureWithDebugInfoAsync(cityName);
-                requests.Add(request);
-            }
+                requests.Add(GetTemperatureWithDebugInfoAsync(cityName));
 
             var results = await Task.WhenAll(requests);
 
-            var temperatures = results.Select(r => r.Temperature).ToList();
-            var maxTemperature = temperatures.Max();
-            var maxTemperatureIndex = temperatures.IndexOf(maxTemperature);
+            var maxTemperature = double.MinValue;
+            var maxTemperatureIndex = -1;
+            var successfulRequests = 0;
 
-            var successfulRequests = temperatures.Where(t => t != null).Count();
-            var failedRequests = temperatures.Count - successfulRequests;
+            for (var i = 0; i < results.Length; i++)
+            {
+                var result = results[i];
 
+                if (result.Temperature == null)
+                    continue;
+                
+                successfulRequests++;
+
+                if (result.Temperature > maxTemperature)
+                {
+                    maxTemperature = (double)result.Temperature;
+                    maxTemperatureIndex = i;
+                }
+            }
+
+            var failedRequests = requests.Count - successfulRequests;
             var sb = new StringBuilder();
 
             if (successfulRequests > 0) 
