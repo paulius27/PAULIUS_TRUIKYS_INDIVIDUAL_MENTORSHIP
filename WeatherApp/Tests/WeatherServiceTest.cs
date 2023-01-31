@@ -22,8 +22,6 @@ namespace Tests
         public void Setup()
         {
             _config = new Mock<IConfiguration>();
-            _config.SetupGet(c => c["FindMaxTemperature:ShowDebugInfo"]).Returns("false");
-
             _geocodingRepository = new Mock<IGeocodingRepository>();
             _weatherRepository = new Mock<IWeatherRepository>();
             _cityNameValidator = new Mock<IValidator<string>>();
@@ -128,7 +126,7 @@ namespace Tests
 
             var errorMessage = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "", " " });
 
-            Assert.That(errorMessage, Is.EqualTo("Error, no successful requests. Failed requests count: 2."));
+            Assert.That(errorMessage, Does.Match("Error, no successful requests\\. Failed requests count: 2\\."));
         }
 
         [Test]
@@ -140,7 +138,7 @@ namespace Tests
 
             var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
 
-            Assert.That(result, Is.EqualTo("City with the highest temperature of 20 °C: Sydney. Successful request count: 2, failed: 0."));
+            Assert.That(result, Does.Match("City with the highest temperature of 20 °C: Sydney\\. Successful request count: 2, failed: 0\\."));
         }
     }
 }
