@@ -2,5 +2,8 @@
     "WeatherForecast": {
         "MinDays": 1,
         "MaxDays": 7
+    },
+    "FindMaxTemperature": {
+        "ShowDebugInfo": true
     }
 }

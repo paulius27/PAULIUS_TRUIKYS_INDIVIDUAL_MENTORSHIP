@@ -2,6 +2,7 @@
 using BL.Validation;
 using DAL;
 using DAL.Models;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using System.Text.Json;
 
@@ -9,6 +10,7 @@ namespace Tests
 {
     public class WeatherServiceTest
     {
+        private Mock<IConfiguration> _config;
         private Mock<IGeocodingRepository> _geocodingRepository;
         private Mock<IWeatherRepository> _weatherRepository;
         private Mock<IValidator<string>> _cityNameValidator;
@@ -19,12 +21,15 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
+            _config = new Mock<IConfiguration>();
+            _config.SetupGet(c => c["FindMaxTemperature:ShowDebugInfo"]).Returns("false");
+
             _geocodingRepository = new Mock<IGeocodingRepository>();
             _weatherRepository = new Mock<IWeatherRepository>();
             _cityNameValidator = new Mock<IValidator<string>>();
             _forecastDaysValidator = new Mock<IValidator<int>>();
 
-            _weatherService = new WeatherService(_geocodingRepository.Object, _weatherRepository.Object, _cityNameValidator.Object, _forecastDaysValidator.Object);
+            _weatherService = new WeatherService(_config.Object, _geocodingRepository.Object, _weatherRepository.Object, _cityNameValidator.Object, _forecastDaysValidator.Object);
         }
 
         [Test]
@@ -114,6 +119,28 @@ namespace Tests
             var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
 
             Assert.That(forecastDescription, Is.EqualTo($"{cityName} weather forecast:{Environment.NewLine}Day 1: 8 °C. It's fresh."));
+        }
+
+        [Test]
+        public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesFail_ErrorMessage()
+        {
+            _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(false);
+
+            var errorMessage = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "", " " });
+
+            Assert.That(errorMessage, Is.EqualTo("Error, no successful requests. Failed requests count: 2."));
+        }
+
+        [Test]
+        public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesSucess_MaxTemperatureResult()
+        {
+            _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync("Berlin")).ReturnsAsync(5);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync("Sydney")).ReturnsAsync(20);
+
+            var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
+
+            Assert.That(result, Is.EqualTo("City with the highest temperature of 20 °C: Sydney. Successful request count: 2, failed: 0."));
         }
     }
 }

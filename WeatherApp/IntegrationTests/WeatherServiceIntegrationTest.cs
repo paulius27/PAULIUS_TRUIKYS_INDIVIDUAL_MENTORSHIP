@@ -33,7 +33,7 @@ namespace IntegrationTests
             var forecastDaysValidator = new ForecastDaysValidator(config);
             var geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
             var weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
-            _weatherService = new WeatherService(geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
+            _weatherService = new WeatherService(config, geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
         }
 
         [Test]
@@ -74,6 +74,22 @@ namespace IntegrationTests
             var weatherDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
 
             Assert.That(weatherDescription, Does.Match(cityName + " weather forecast:(\r\n|\r|\n)Day 1: -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
+        }
+
+        [Test]
+        public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesFail_ErrorMessage()
+        {
+            var errorMessage = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "?" });
+
+            Assert.That(errorMessage, Does.Match("Error, no successful requests\\. Failed requests count: 1\\."));
+        }
+
+        [Test]
+        public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesSucess_MaxTemperatureResult()
+        {
+            var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
+
+            Assert.That(result, Does.Match("City with the highest temperature of -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C: (Berlin|Sydney)\\. Successful request count: 2, failed: 0\\."));
         }
     }
 }
