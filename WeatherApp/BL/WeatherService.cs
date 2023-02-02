@@ -19,6 +19,7 @@ namespace BL
         private readonly IValidator<int> _forecastDaysValidator;
 
         private readonly bool _showDebugInfo;
+        private readonly int _findMaxTemperatureTimeoutMs;
 
         public WeatherService(IConfiguration config, IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidator<string> cityNameValidator, IValidator<int> forecastDaysValidator)
         {
@@ -29,6 +30,9 @@ namespace BL
 
             if (!bool.TryParse(config["FindMaxTemperature:ShowDebugInfo"], out _showDebugInfo))
                 _showDebugInfo = true;
+
+            if (!int.TryParse(config["FindMaxTemperature:TimeoutMs"], out _findMaxTemperatureTimeoutMs))
+                _findMaxTemperatureTimeoutMs = 5000;
         }
 
         public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
@@ -85,7 +89,7 @@ namespace BL
 
         public async Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)
         {
-            var cancellationTokenSource = new CancellationTokenSource(1000);
+            var cancellationTokenSource = new CancellationTokenSource(_findMaxTemperatureTimeoutMs);
             var requests = new List<Task<(double? Temperature, string DebugInfo, bool Canceled)>>();
 
             foreach (var cityName in cityNames) 
