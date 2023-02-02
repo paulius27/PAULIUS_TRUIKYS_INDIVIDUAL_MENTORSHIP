@@ -130,6 +130,17 @@ namespace Tests
         }
 
         [Test]
+        public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesTimeout_ErrorMessage()
+        {
+            _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new TaskCanceledException());
+
+            var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
+
+            Assert.That(result, Does.Match("Error, no successful requests\\. Failed requests count: 0, canceled: 2\\."));
+        }
+
+        [Test]
         public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesSucess_MaxTemperatureResult()
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
