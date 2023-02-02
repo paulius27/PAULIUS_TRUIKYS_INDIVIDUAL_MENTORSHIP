@@ -81,7 +81,7 @@ namespace IntegrationTests
         {
             var errorMessage = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "?" });
 
-            Assert.That(errorMessage, Does.Match("Error, no successful requests\\. Failed requests count: 1\\."));
+            Assert.That(errorMessage, Does.Match("Error, no successful requests\\. Failed requests count: 1, canceled: 0\\."));
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace IntegrationTests
         {
             var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
 
-            Assert.That(result, Does.Match("City with the highest temperature of -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C: (Berlin|Sydney)\\. Successful request count: 2, failed: 0\\."));
+            Assert.That(result, Does.Match("City with the highest temperature of -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C: (Berlin|Sydney)\\. Successful requests count: 2, failed: 0, canceled: 0\\."));
         }
     }
 }
