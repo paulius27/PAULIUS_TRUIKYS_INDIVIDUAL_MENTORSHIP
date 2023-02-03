@@ -22,7 +22,9 @@ namespace DAL
             _apiKey = apiKey;
         }
 
-        public async Task<double> GetTemperatureByCityNameAsync(string cityName, CancellationToken cancellationToken = default)
+        public async Task<double> GetTemperatureByCityNameAsync(string cityName) => await GetTemperatureByCityNameAsync(cityName, CancellationToken.None);
+
+        public async Task<double> GetTemperatureByCityNameAsync(string cityName, CancellationToken cancellationToken)
         {
             using var httpClient = _httpClientFactory.CreateClient();
             using var response = await httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}", cancellationToken);
