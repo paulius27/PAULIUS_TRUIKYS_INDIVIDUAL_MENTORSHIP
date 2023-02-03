@@ -44,7 +44,7 @@ namespace Tests
         public async Task GetWeatherDescriptionByCityNameAsync_GetTemperatureFail_ErrorMessage()
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
-            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new JsonException("error"));
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ThrowsAsync(new JsonException("error"));
 
             var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync("London");
 
@@ -60,7 +60,7 @@ namespace Tests
         {
             string cityName = "London";
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
-            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(temperature);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ReturnsAsync(temperature);
 
             var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
 
