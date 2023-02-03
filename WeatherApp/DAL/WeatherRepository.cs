@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using DAL.Models;
 using DAL.Models.OpenMeteo;
@@ -21,10 +22,10 @@ namespace DAL
             _apiKey = apiKey;
         }
 
-        public async Task<double> GetTemperatureByCityNameAsync(string cityName)
+        public async Task<double> GetTemperatureByCityNameAsync(string cityName, CancellationToken cancellationToken = default)
         {
             using var httpClient = _httpClientFactory.CreateClient();
-            using var response = await httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}");
+            using var response = await httpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&APPID={_apiKey}", cancellationToken);
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
 

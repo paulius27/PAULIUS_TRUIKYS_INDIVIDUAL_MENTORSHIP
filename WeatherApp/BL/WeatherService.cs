@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BL.Validation;
 using DAL;
@@ -18,6 +19,7 @@ namespace BL
         private readonly IValidator<int> _forecastDaysValidator;
 
         private readonly bool _showDebugInfo;
+        private readonly int _findMaxTemperatureTimeoutMs;
 
         public WeatherService(IConfiguration config, IGeocodingRepository geocodingRepository, IWeatherRepository weatherRepository, IValidator<string> cityNameValidator, IValidator<int> forecastDaysValidator)
         {
@@ -28,6 +30,9 @@ namespace BL
 
             if (!bool.TryParse(config["FindMaxTemperature:ShowDebugInfo"], out _showDebugInfo))
                 _showDebugInfo = true;
+
+            if (!int.TryParse(config["FindMaxTemperature:TimeoutMs"], out _findMaxTemperatureTimeoutMs))
+                _findMaxTemperatureTimeoutMs = 5000;
         }
 
         public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
@@ -84,20 +89,25 @@ namespace BL
 
         public async Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)
         {
-            var requests = new List<Task<(double? Temperature, string DebugInfo)>>();
+            var cancellationTokenSource = new CancellationTokenSource(_findMaxTemperatureTimeoutMs);
+            var requests = new List<Task<(double? Temperature, string DebugInfo, bool Canceled)>>();
 
             foreach (var cityName in cityNames) 
-                requests.Add(GetTemperatureWithDebugInfoAsync(cityName));
+                requests.Add(GetTemperatureWithDebugInfoAsync(cityName, cancellationTokenSource.Token));
 
             var results = await Task.WhenAll(requests);
 
             var maxTemperature = double.MinValue;
             var maxTemperatureIndex = -1;
             var successfulRequests = 0;
+            var cancelledRequests = 0;
 
             for (var i = 0; i < results.Length; i++)
             {
                 var result = results[i];
+
+                if (result.Canceled)
+                    cancelledRequests++;
 
                 if (result.Temperature == null)
                     continue;
@@ -111,13 +121,13 @@ namespace BL
                 }
             }
 
-            var failedRequests = requests.Count - successfulRequests;
+            var failedRequests = requests.Count - successfulRequests - cancelledRequests;
             var sb = new StringBuilder();
 
             if (successfulRequests > 0) 
-                sb.Append($"City with the highest temperature of {maxTemperature} °C: {cityNames.ElementAt(maxTemperatureIndex)}. Successful request count: {successfulRequests}, failed: {failedRequests}.");
+                sb.Append($"City with the highest temperature of {maxTemperature} °C: {cityNames.ElementAt(maxTemperatureIndex)}. Successful requests count: {successfulRequests}, failed: {failedRequests}, canceled: {cancelledRequests}.");
             else
-                sb.Append($"Error, no successful requests. Failed requests count: {failedRequests}.");
+                sb.Append($"Error, no successful requests. Failed requests count: {failedRequests}, canceled: {cancelledRequests}.");
 
             if (_showDebugInfo) 
             {
@@ -131,21 +141,25 @@ namespace BL
             return sb.ToString();
         }
 
-        private async Task<(double? Temperature, string DebugInfo)> GetTemperatureWithDebugInfoAsync(string cityName)
+        private async Task<(double? Temperature, string DebugInfo, bool Cancelled)> GetTemperatureWithDebugInfoAsync(string cityName, CancellationToken cancellationToken)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
             if (!_cityNameValidator.Validate(cityName))
-                return (null, $"City: {cityName}. Error: city name is not valid. Timer: {sw.Elapsed.TotalMilliseconds} ms.");
+                return (null, $"City: {cityName}. Error: city name is not valid. Timer: {sw.Elapsed.TotalMilliseconds} ms.", false);
 
             try
             {
-                double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
-                return (temperature, $"City: {cityName}. Temperature: {temperature} °C. Timer: {sw.Elapsed.TotalMilliseconds} ms.");
+                double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName, cancellationToken);
+                return (temperature, $"City: {cityName}. Temperature: {temperature} °C. Timer: {sw.Elapsed.TotalMilliseconds} ms.", false);
+            }
+            catch (TaskCanceledException)
+            {
+                return (null, $"Weather request for {cityName} was canceled due to a timeout.", true);
             }
             catch (Exception ex)
             {
-                return (null, $"City: {cityName}. Error: failed to get weather data ({ex.Message}). Timer: {sw.Elapsed.TotalMilliseconds} ms.");
+                return (null, $"City: {cityName}. Error: failed to get weather data ({ex.Message}). Timer: {sw.Elapsed.TotalMilliseconds} ms.", false);
             }
         }
 

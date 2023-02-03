@@ -44,7 +44,7 @@ namespace Tests
         public async Task GetWeatherDescriptionByCityNameAsync_GetTemperatureFail_ErrorMessage()
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
-            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ThrowsAsync(new JsonException("error"));
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new JsonException("error"));
 
             var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync("London");
 
@@ -60,7 +60,7 @@ namespace Tests
         {
             string cityName = "London";
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
-            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ReturnsAsync(temperature);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(temperature);
 
             var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
 
@@ -126,19 +126,30 @@ namespace Tests
 
             var errorMessage = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "", " " });
 
-            Assert.That(errorMessage, Does.Match("Error, no successful requests\\. Failed requests count: 2\\."));
+            Assert.That(errorMessage, Does.Match("Error, no successful requests\\. Failed requests count: 2, canceled: 0\\."));
+        }
+
+        [Test]
+        public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesTimeout_ErrorMessage()
+        {
+            _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new TaskCanceledException());
+
+            var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
+
+            Assert.That(result, Does.Match("Error, no successful requests\\. Failed requests count: 0, canceled: 2\\."));
         }
 
         [Test]
         public async Task GetMaxTemperatureByCityNamesAsync_GetTemperaturesSucess_MaxTemperatureResult()
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
-            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync("Berlin")).ReturnsAsync(5);
-            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync("Sydney")).ReturnsAsync(20);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync("Berlin", It.IsAny<CancellationToken>())).ReturnsAsync(5);
+            _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync("Sydney", It.IsAny<CancellationToken>())).ReturnsAsync(20);
 
             var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(new List<string> { "Berlin", "Sydney" });
 
-            Assert.That(result, Does.Match("City with the highest temperature of 20 °C: Sydney\\. Successful request count: 2, failed: 0\\."));
+            Assert.That(result, Does.Match("City with the highest temperature of 20 °C: Sydney\\. Successful requests count: 2, failed: 0, canceled: 0\\."));
         }
     }
 }
