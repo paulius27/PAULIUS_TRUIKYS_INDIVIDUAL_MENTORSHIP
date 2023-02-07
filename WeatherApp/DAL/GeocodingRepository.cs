@@ -1,8 +1,8 @@
 ﻿using DAL.Models;
 using DAL.Models.OpenWeather;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,10 +14,10 @@ namespace DAL
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
 
-        public GeocodingRepository(IHttpClientFactory httpClientFactory, string apiKey)
+        public GeocodingRepository(IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _apiKey = apiKey;
+            _apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
         }
 
         public async Task<Coordinates> GetCoordinatesByCityNameAsync(string cityName)

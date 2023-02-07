@@ -20,12 +20,10 @@ var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-string apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
-
 IValidator<string> cityNameValidator = new CityNameValidator();
 IValidator<int> forecastDaysValidator = new ForecastDaysValidator(config);
-IGeocodingRepository geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
-IWeatherRepository weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
+IGeocodingRepository geocodingRepository = new GeocodingRepository(config, httpClientFactory);
+IWeatherRepository weatherRepository = new WeatherRepository(config, httpClientFactory);
 IWeatherService weatherService = new WeatherService(config, geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
 
 while (true)

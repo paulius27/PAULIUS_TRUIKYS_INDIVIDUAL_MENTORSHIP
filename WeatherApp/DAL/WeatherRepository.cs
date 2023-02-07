@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DAL.Models;
 using DAL.Models.OpenMeteo;
 using DAL.Models.OpenWeather;
+using Microsoft.Extensions.Configuration;
 
 namespace DAL
 {
@@ -16,10 +17,10 @@ namespace DAL
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
 
-        public WeatherRepository(IHttpClientFactory httpClientFactory, string apiKey)
+        public WeatherRepository(IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _apiKey = apiKey;
+            _apiKey = config["weather_api_key"] ?? throw new KeyNotFoundException("Weather API Key not found.");
         }
 
         public async Task<double> GetTemperatureByCityNameAsync(string cityName) => await GetTemperatureByCityNameAsync(cityName, CancellationToken.None);
