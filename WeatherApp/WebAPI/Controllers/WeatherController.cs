@@ -1,3 +1,4 @@
+using BL;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
@@ -6,24 +7,24 @@ namespace WebAPI.Controllers;
 [Route("[controller]")]
 public class WeatherController : ControllerBase
 {
-    private readonly ILogger<WeatherController> _logger;
+    private readonly IWeatherService _weatherService;
 
-    public WeatherController(ILogger<WeatherController> logger)
+    public WeatherController(IWeatherService weatherService)
     {
-        _logger = logger;
+        _weatherService = weatherService;
     }
 
     [HttpGet("Current")]
     public async Task<IActionResult> GetCurrentWeather(string cityName)
     {
-        await Task.Delay(100);
-        return Ok("Current Weather");
+        var weather = await _weatherService.GetWeatherByCityNameAsync(cityName);
+        return Ok(weather);
     }
 
     [HttpGet("Forecast")]
     public async Task<IActionResult> GetWeatherForecast(string cityName, int days)
     {
-        await Task.Delay(100);
-        return Ok("Weather Forecast");
+        var forecast = await _weatherService.GetForecastByCityNameAsync(cityName, days);
+        return Ok(forecast);
     }
 }
