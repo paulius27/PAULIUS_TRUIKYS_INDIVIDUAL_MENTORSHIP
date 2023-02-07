@@ -38,21 +38,12 @@ namespace BL
 
         public async Task<Weather> GetWeatherByCityNameAsync(string cityName)
         {
-            //if (!_cityNameValidator.Validate(cityName))
-            //    return "Error: city name is not valid.";
+            if (!_cityNameValidator.Validate(cityName))
+                throw new ValidationException("city name is not valid");
             
-            //try
-            //{
-        
             double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
 
             return new Weather(cityName, temperature, GetTemperatureComment(temperature));
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    return $"Error: failed to get weather data ({ex.Message}).";
-            //}
         }
 
         public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)
