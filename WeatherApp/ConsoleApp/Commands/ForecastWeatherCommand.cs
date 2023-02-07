@@ -23,7 +23,25 @@ public class ForecastWeatherCommand : ICommand
             return;
         }
 
-        var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, days);
-        Console.WriteLine(forecastDescription);
+        try
+        {
+            var forecast = await _weatherService.GetForecastByCityNameAsync(cityName, days);
+
+            var i = 0;
+            Console.Write($"{cityName} weather forecast:");
+
+            foreach (var forecastDay in forecast.Days)
+            {
+                i++;
+                Console.WriteLine();
+                Console.Write($"Day {i}: {forecastDay.Temperature} °C. {forecastDay.Comment}.");
+            }
+
+            Console.WriteLine();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}.");
+        }
     }
 }

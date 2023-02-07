@@ -46,40 +46,30 @@ namespace BL
             return new Weather(cityName, temperature, GetTemperatureComment(temperature));
         }
 
-        public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)
+        public async Task<WeatherForecast> GetForecastByCityNameAsync(string cityName, int days)
         {
             if (!_cityNameValidator.Validate(cityName))
-                return "Error: city name is not valid.";
+                throw new ValidationException("city name is not valid");
 
             if (!_forecastDaysValidator.Validate(days))
-                return "Error: forecast days are not valid.";
+                throw new ValidationException("forecast days are not valid");
 
-            try
+            var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
+
+            DateTime startDate = DateTime.Now.AddDays(1);
+            DateTime endDate = startDate.AddDays(days - 1);
+            var forecastsData = await _weatherRepository.GetForecastByCoordinatesAsync(coordinates, startDate, endDate);
+
+            var forecastDays = new List<WeatherForecastDay>();
+
+            foreach (var forecastsDataEntry in forecastsData)
             {
-                var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
-
-                DateTime startDate = DateTime.Now.AddDays(1);
-                DateTime endDate = startDate.AddDays(days - 1);
-                var forecasts = await _weatherRepository.GetForecastByCoordinatesAsync(coordinates, startDate, endDate);
-
-                var i = 0;
-                var sb = new StringBuilder($"{cityName} weather forecast:");
-
-                foreach (var forecast in forecasts)
-                {
-                    double temperature = Math.Round((forecast.MinTemperature + forecast.MaxTemperature) / 2, 2);
-
-                    i++;
-                    sb.AppendLine();
-                    sb.Append($"Day {i}: {temperature} °C. {GetTemperatureComment(temperature)}.");
-                }
-
-                return sb.ToString();
+                double temperature = Math.Round((forecastsDataEntry.MinTemperature + forecastsDataEntry.MaxTemperature) / 2, 2);
+                var forecastDay = new WeatherForecastDay(forecastsDataEntry.Date, temperature, GetTemperatureComment(temperature));
+                forecastDays.Add(forecastDay);
             }
-            catch (Exception ex)
-            {
-                return $"Error: failed to get weather forecast data ({ex.Message}).";
-            }
+
+            return new WeatherForecast(cityName, forecastDays);
         }
 
         public async Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)

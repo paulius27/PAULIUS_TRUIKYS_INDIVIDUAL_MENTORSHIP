@@ -61,7 +61,7 @@ namespace IntegrationTests
         {
             string cityName = "?";
 
-            var forecstDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
+            var forecstDescription = await _weatherService.GetForecastByCityNameAsync(cityName, 1);
 
             Assert.That(forecstDescription, Does.Match("Error: failed to get weather forecast data \\((.*?)\\)\\."));
         }
@@ -71,7 +71,7 @@ namespace IntegrationTests
         {
             string cityName = "Paris";
 
-            var weatherDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
+            var weatherDescription = await _weatherService.GetForecastByCityNameAsync(cityName, 1);
 
             Assert.That(weatherDescription, Does.Match(cityName + " weather forecast:(\r\n|\r|\n)Day 1: -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
         }

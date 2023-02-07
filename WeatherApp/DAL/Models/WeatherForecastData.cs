@@ -2,9 +2,9 @@
 
 namespace DAL.Models
 {
-    public class WeatherForecast
+    public class WeatherForecastData
     {
-        public WeatherForecast(DateTime date, double minTemperature, double maxTemperature)
+        public WeatherForecastData(DateTime date, double minTemperature, double maxTemperature)
         {
             Date = date;
             MinTemperature = minTemperature;

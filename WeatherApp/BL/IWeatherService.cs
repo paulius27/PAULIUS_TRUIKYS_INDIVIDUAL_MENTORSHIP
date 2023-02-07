@@ -8,7 +8,7 @@ namespace BL
     {
         Task<Weather> GetWeatherByCityNameAsync(string cityName);
 
-        Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days);
+        Task<WeatherForecast> GetForecastByCityNameAsync(string cityName, int days);
 
         Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames);
     }

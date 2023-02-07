@@ -12,6 +12,6 @@ namespace DAL
 
         Task<double> GetTemperatureByCityNameAsync(string cityName, CancellationToken cancellationToken);
 
-        Task<IEnumerable<WeatherForecast>> GetForecastByCoordinatesAsync(Coordinates coordinates, DateTime startDate, DateTime endDate);
+        Task<IEnumerable<WeatherForecastData>> GetForecastByCoordinatesAsync(Coordinates coordinates, DateTime startDate, DateTime endDate);
     }
 }
