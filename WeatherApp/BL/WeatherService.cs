@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BL.Models;
 using BL.Validation;
 using DAL;
 using Microsoft.Extensions.Configuration;
@@ -35,20 +36,23 @@ namespace BL
                 _findMaxTemperatureTimeoutMs = 5000;
         }
 
-        public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
+        public async Task<Weather> GetWeatherByCityNameAsync(string cityName)
         {
-            if (!_cityNameValidator.Validate(cityName))
-                return "Error: city name is not valid.";
+            //if (!_cityNameValidator.Validate(cityName))
+            //    return "Error: city name is not valid.";
             
-            try
-            {
-                double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
-                return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}.";
-            }
-            catch (Exception ex)
-            {
-                return $"Error: failed to get weather data ({ex.Message}).";
-            }
+            //try
+            //{
+        
+            double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
+
+            return new Weather(cityName, temperature, GetTemperatureComment(temperature));
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    return $"Error: failed to get weather data ({ex.Message}).";
+            //}
         }
 
         public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)

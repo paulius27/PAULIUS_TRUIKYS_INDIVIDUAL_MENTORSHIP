@@ -35,7 +35,7 @@ namespace Tests
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(false);
 
-            var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync("");
+            var weatherDescription = await _weatherService.GetWeatherByCityNameAsync("");
 
             Assert.That(weatherDescription, Is.EqualTo("Error: city name is not valid."));
         }
@@ -46,7 +46,7 @@ namespace Tests
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
             _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ThrowsAsync(new JsonException("error"));
 
-            var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync("London");
+            var weatherDescription = await _weatherService.GetWeatherByCityNameAsync("London");
 
             Assert.That(weatherDescription, Is.EqualTo("Error: failed to get weather data (error)."));
         }
@@ -62,7 +62,7 @@ namespace Tests
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
             _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ReturnsAsync(temperature);
 
-            var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
+            var weatherDescription = await _weatherService.GetWeatherByCityNameAsync(cityName);
 
             Assert.That(weatherDescription, Is.EqualTo($"In {cityName} {temperature} °C. {expectedTemperatureComment}."));
         }

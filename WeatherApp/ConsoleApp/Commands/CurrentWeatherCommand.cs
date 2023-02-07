@@ -16,7 +16,7 @@ public class CurrentWeatherCommand : ICommand
         Console.Write("Enter city name: ");
         var cityName = Console.ReadLine() ?? "";
 
-        var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
-        Console.WriteLine(weatherDescription);
+        var weather = await _weatherService.GetWeatherByCityNameAsync(cityName);
+        Console.WriteLine($"In {weather.CityName} {weather.Temperature} °C. {weather.Comment}.");
     }
 }
