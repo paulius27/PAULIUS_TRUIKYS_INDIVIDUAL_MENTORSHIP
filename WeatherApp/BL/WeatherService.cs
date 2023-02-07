@@ -39,7 +39,7 @@ namespace BL
         public async Task<Weather> GetWeatherByCityNameAsync(string cityName)
         {
             if (!_cityNameValidator.Validate(cityName))
-                throw new ValidationException("city name is not valid");
+                throw new ValidationException("city name is not valid", nameof(cityName));
             
             double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
 
@@ -49,10 +49,10 @@ namespace BL
         public async Task<WeatherForecast> GetForecastByCityNameAsync(string cityName, int days)
         {
             if (!_cityNameValidator.Validate(cityName))
-                throw new ValidationException("city name is not valid");
+                throw new ValidationException("city name is not valid", nameof(cityName));
 
             if (!_forecastDaysValidator.Validate(days))
-                throw new ValidationException("forecast days are not valid");
+                throw new ValidationException("forecast days are not valid", nameof(days));
 
             var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
 
