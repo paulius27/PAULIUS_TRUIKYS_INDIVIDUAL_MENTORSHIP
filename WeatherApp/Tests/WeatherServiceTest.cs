@@ -68,12 +68,11 @@ namespace Tests
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
             _weatherRepository.Setup(w => w.GetTemperatureByCityNameAsync(It.IsAny<string>())).ReturnsAsync(temperature);
 
-            var weatherDescription = await _weatherService.GetWeatherByCityNameAsync(cityName);
+            var weather = await _weatherService.GetWeatherByCityNameAsync(cityName);
 
-            //Assert.That(weatherDescription, Is.EqualTo($"In {cityName} {temperature} °C. {expectedTemperatureComment}."));
-            Assert.That(weatherDescription.CityName, Is.EqualTo(cityName));
-            Assert.That(weatherDescription.Temperature, Is.EqualTo(temperature));
-            Assert.That(weatherDescription.Comment, Is.EqualTo(expectedTemperatureComment));
+            Assert.That(weather.CityName, Is.EqualTo(cityName));
+            Assert.That(weather.Temperature, Is.EqualTo(temperature));
+            Assert.That(weather.Comment, Is.EqualTo(expectedTemperatureComment));
         }
 
         [Test]
