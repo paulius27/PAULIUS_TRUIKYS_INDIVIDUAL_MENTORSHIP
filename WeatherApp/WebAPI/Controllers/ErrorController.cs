@@ -1,7 +1,6 @@
-﻿using BL.Validation;
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using WebAPI.Responses;
 
 namespace WebAPI.Controllers
 {
@@ -10,23 +9,19 @@ namespace WebAPI.Controllers
     {
         [HttpGet]
         [Route("/Error")]
-        public IActionResult GetError()
+        public ErrorResponse GetError()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var ex = context?.Error;
 
-            if (ex is ArgumentException)
+            Response.StatusCode = ex switch
             {
-                var errors = new ModelStateDictionary();
-                errors.AddModelError(((ArgumentException)ex).ParamName ?? "", ex.Message);
-                return ValidationProblem(errors);
-            }
-            else if (ex is KeyNotFoundException)
-            {
-                return Problem(detail: ex.Message, statusCode: StatusCodes.Status404NotFound);
-            }
+                ArgumentException    => StatusCodes.Status400BadRequest,
+                KeyNotFoundException => StatusCodes.Status404NotFound,
+                _                    => StatusCodes.Status500InternalServerError
+            };
 
-            return Problem(ex?.Message);
+            return new ErrorResponse(ex?.Message ?? "");
         }
     }
 }
