@@ -35,12 +35,12 @@ namespace Tests
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(false);
 
-            var ex = Assert.ThrowsAsync<ValidationException>(async () => 
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () => 
             {
                 await _weatherService.GetWeatherByCityNameAsync(""); 
             });
             
-            Assert.That(ex.Message, Is.EqualTo("city name is not valid"));
+            Assert.That(ex.Message, Is.EqualTo("city name is not valid (Parameter 'cityName')"));
         }
 
         [Test]
@@ -80,12 +80,12 @@ namespace Tests
         {
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(false);
 
-            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             {
                 await _weatherService.GetForecastByCityNameAsync("", 1);
             });
 
-            Assert.That(ex.Message, Is.EqualTo("city name is not valid"));
+            Assert.That(ex.Message, Is.EqualTo("city name is not valid (Parameter 'cityName')"));
         }
 
         [Test]
@@ -94,12 +94,12 @@ namespace Tests
             _cityNameValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(true);
             _forecastDaysValidator.Setup(v => v.Validate(It.IsAny<int>())).Returns(false);
 
-            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             {
                 await _weatherService.GetForecastByCityNameAsync("London", 1);
             });
 
-            Assert.That(ex.Message, Is.EqualTo("forecast days are not valid"));
+            Assert.That(ex.Message, Is.EqualTo("forecast days are not valid (Parameter 'days')"));
         }
 
         [Test]

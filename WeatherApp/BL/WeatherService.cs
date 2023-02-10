@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BL.Extensions;
 using BL.Models;
 using BL.Validation;
 using DAL;
@@ -43,7 +44,7 @@ namespace BL
             
             double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
 
-            return new Weather(cityName, temperature, GetTemperatureComment(temperature));
+            return new Weather(cityName, temperature, temperature.GetTemperatureComment());
         }
 
         public async Task<WeatherForecast> GetForecastByCityNameAsync(string cityName, int days)
@@ -65,7 +66,7 @@ namespace BL
             foreach (var forecastsDataEntry in forecastsData)
             {
                 double temperature = Math.Round((forecastsDataEntry.MinTemperature + forecastsDataEntry.MaxTemperature) / 2, 2);
-                var forecastDay = new WeatherForecastDay(forecastsDataEntry.Date, temperature, GetTemperatureComment(temperature));
+                var forecastDay = new WeatherForecastDay(forecastsDataEntry.Date, temperature, temperature.GetTemperatureComment());
                 forecastDays.Add(forecastDay);
             }
 
@@ -146,18 +147,6 @@ namespace BL
             {
                 return (null, $"City: {cityName}. Error: failed to get weather data ({ex.Message}). Timer: {sw.Elapsed.TotalMilliseconds} ms.", false);
             }
-        }
-
-        private string GetTemperatureComment(double temperature)
-        {
-            if (temperature < 0)
-                return "Dress warmly";
-            else if (temperature < 20)
-                return "It's fresh";
-            else if (temperature < 30)
-                return "Good weather";
-            else
-                return "It's time to go to the beach";
         }
     }
 }
