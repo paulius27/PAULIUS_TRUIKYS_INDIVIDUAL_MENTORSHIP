@@ -1,47 +1,42 @@
 ﻿using BL;
+using System.Text;
 
 namespace ConsoleApp.Commands;
 
 public class ForecastWeatherCommand : ICommand
 {
     private IWeatherService _weatherService;
+    private string _cityName;
+    private int _days;
 
-    public ForecastWeatherCommand(IWeatherService weatherService)
+    public ForecastWeatherCommand(IWeatherService weatherService, string cityName, int days)
     {
         _weatherService = weatherService;
+        _cityName = cityName;
+        _days = days;
     }
 
-    public async Task Execute()
+    public async Task<string> Execute()
     {
-        Console.Write("Enter city name: ");
-        var cityName = Console.ReadLine() ?? "";
-
-        Console.Write("Enter how many days to forecast: ");
-        if (!int.TryParse(Console.ReadLine(), out int days)) 
-        {
-            Console.WriteLine("Input for 'days' must be a number.");
-            return;
-        }
-
         try
         {
-            var forecast = await _weatherService.GetForecastByCityNameAsync(cityName, days);
+            var forecast = await _weatherService.GetForecastByCityNameAsync(_cityName, _days);
 
             var i = 0;
-            Console.Write($"{cityName} weather forecast:");
+            var sb = new StringBuilder($"{_cityName} weather forecast:");
 
             foreach (var forecastDay in forecast.Days)
             {
                 i++;
-                Console.WriteLine();
-                Console.Write($"Day {i}: {forecastDay.Temperature} °C. {forecastDay.Comment}.");
+                sb.AppendLine();
+                sb.Append($"Day {i}: {forecastDay.Temperature} °C. {forecastDay.Comment}.");
             }
 
-            Console.WriteLine();
+            return sb.ToString();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}.");
+            return $"Error: {ex.Message}.";
         }
     }
 }

@@ -6,22 +6,21 @@ internal class FindMaxTemperatureCommand : ICommand
 {
     private IWeatherService _weatherService;
 
-    public FindMaxTemperatureCommand(IWeatherService weatherService)
+    private string _cityNames;
+
+    public FindMaxTemperatureCommand(IWeatherService weatherService, string cityNames)
     {
         _weatherService = weatherService;
+        _cityNames = cityNames;
     }
 
-    public async Task Execute()
+    public async Task<string> Execute()
     {
-        Console.Write("Enter city names: ");
-        var cityNamesInput = Console.ReadLine() ?? "";
-
-        var cityNames = cityNamesInput
+        var cityNamesList = _cityNames
             .Split(',')
             .Select(cityName => cityName.Trim())
             .ToList();
 
-        var result = await _weatherService.GetMaxTemperatureByCityNamesAsync(cityNames);
-        Console.WriteLine(result);
+        return await _weatherService.GetMaxTemperatureByCityNamesAsync(cityNamesList);
     }
 }

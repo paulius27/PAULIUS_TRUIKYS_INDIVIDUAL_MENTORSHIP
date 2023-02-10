@@ -39,17 +39,40 @@ while (true)
         var input = Console.ReadKey().KeyChar;
         Console.WriteLine();
 
-        ICommand command = input switch
+        ICommand command;
+
+        if (input == '1')
         {
-            '0' => new CloseApplicationCommand(),
-            '1' => new CurrentWeatherCommand(weatherService),
-            '2' => new ForecastWeatherCommand(weatherService),
-            '3' => new FindMaxTemperatureCommand(weatherService),
-            _   => throw new ArgumentException($"Input \"{input}\" is not supported.")
-        };
+            Console.Write("Enter city name: ");
+            var cityName = Console.ReadLine() ?? "";
 
-        await command.Execute();
+            command = new CurrentWeatherCommand(weatherService, cityName);
+        }
+        else if (input == '2')
+        {
+            Console.Write("Enter city name: ");
+            var cityName = Console.ReadLine() ?? "";
 
+            Console.Write("Enter how many days to forecast: ");
+            if (!int.TryParse(Console.ReadLine(), out int days))
+                throw new ArgumentException("Input for 'days' must be a number.");
+
+            command = new ForecastWeatherCommand(weatherService, cityName, days);
+        }
+        else if (input == '3')
+        {
+            Console.Write("Enter city names: ");
+            var cityNames = Console.ReadLine() ?? "";
+
+            command = new FindMaxTemperatureCommand(weatherService, cityNames);
+        }
+        else if (input == '0')
+            break;
+        else
+            throw new ArgumentException($"Input \"{input}\" is not supported.");
+
+        var result = await command.Execute();
+        Console.WriteLine(result);
         Console.WriteLine();
     }
     catch (ArgumentException ex)
