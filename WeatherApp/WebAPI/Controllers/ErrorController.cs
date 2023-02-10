@@ -15,10 +15,10 @@ namespace WebAPI.Controllers
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var ex = context?.Error;
 
-            if (ex is ValidationException)
+            if (ex is ArgumentException)
             {
                 var errors = new ModelStateDictionary();
-                errors.AddModelError(((ValidationException)ex).ParamName, ex.Message);
+                errors.AddModelError(((ArgumentException)ex).ParamName ?? "", ex.Message);
                 return ValidationProblem(errors);
             }
             else if (ex is KeyNotFoundException)

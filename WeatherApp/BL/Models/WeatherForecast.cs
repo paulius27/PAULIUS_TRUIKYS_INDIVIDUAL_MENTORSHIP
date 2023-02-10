@@ -4,7 +4,7 @@ namespace BL.Models
 {
     public class WeatherForecast
     {
-        public WeatherForecast(string cityName, IEnumerable<WeatherForecastDay> days)
+        public WeatherForecast(string cityName, List<WeatherForecastDay> days)
         {
             CityName = cityName;
             Days = days;
@@ -12,6 +12,6 @@ namespace BL.Models
 
         public string CityName { get; set; }
 
-        public IEnumerable<WeatherForecastDay> Days { get; set; }
+        public List<WeatherForecastDay> Days { get; set; }
     }
 }
