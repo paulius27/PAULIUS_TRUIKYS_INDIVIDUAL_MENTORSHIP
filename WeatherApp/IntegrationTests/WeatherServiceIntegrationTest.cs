@@ -4,6 +4,7 @@ using DAL;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 
 namespace IntegrationTests
 {
@@ -31,49 +32,60 @@ namespace IntegrationTests
 
             var cityNameValidator = new CityNameValidator();
             var forecastDaysValidator = new ForecastDaysValidator(config);
-            var geocodingRepository = new GeocodingRepository(httpClientFactory, apiKey);
-            var weatherRepository = new WeatherRepository(httpClientFactory, apiKey);
+            var geocodingRepository = new GeocodingRepository(config, httpClientFactory);
+            var weatherRepository = new WeatherRepository(config, httpClientFactory);
             _weatherService = new WeatherService(config, geocodingRepository, weatherRepository, cityNameValidator, forecastDaysValidator);
         }
 
         [Test]
-        public async Task GetWeatherDescriptionByCityNameAsync_GetTemperatureFail_ErrorMessage()
+        public void GetWeatherByCityNameAsync_GetTemperatureFail_ErrorMessage()
         {
-            string cityName = "?";
+            var ex = Assert.ThrowsAsync<HttpRequestException>(async () =>
+            {
+                await _weatherService.GetWeatherByCityNameAsync("?");
+            });
 
-            var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
-
-            Assert.That(weatherDescription, Does.Match("Error: failed to get weather data \\((.*?)\\)\\."));
+            Assert.That(ex.Message, Is.EqualTo("Response status code does not indicate success: 404 (Not Found)."));
         }
 
         [Test]
-        public async Task GetWeatherDescriptionByCityNameAsync_GetTemperatureSuccess_WeatherDescription()
+        public async Task GetWeatherByCityNameAsync_GetTemperatureSuccess_Weather()
         {
             string cityName = "Paris";
 
-            var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
+            var weather = await _weatherService.GetWeatherByCityNameAsync(cityName);
 
-            Assert.That(weatherDescription, Does.Match("In " + cityName + " -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
+            Assert.That(weather.CityName, Is.EqualTo(cityName));
+            Assert.That(weather.Temperature.ToString(CultureInfo.InvariantCulture), Does.Match("-?(\\d+(?:[\\.\\,]\\d{1,2})?)"));
+            Assert.That(string.IsNullOrWhiteSpace(weather.Comment), Is.False);
         }
 
         [Test]
-        public async Task GetForecastDescriptionByCityNameAsync_GetCoordinatesFail_ErrorMessage()
+        public void GetForecastByCityNameAsync_GetCoordinatesFail_ErrorMessage()
         {
             string cityName = "?";
 
-            var forecstDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
+            var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
+            {
+                await _weatherService.GetForecastByCityNameAsync(cityName, 1);
+            });
 
-            Assert.That(forecstDescription, Does.Match("Error: failed to get weather forecast data \\((.*?)\\)\\."));
+            Assert.That(ex.Message, Is.EqualTo("city coordinates not found"));
         }
 
         [Test]
-        public async Task GetForecastDescriptionByCityNameAsync_GetForecastSuccess_ForecastDescription()
+        public async Task GetForecastByCityNameAsync_GetForecastSuccess_Forecast()
         {
             string cityName = "Paris";
 
-            var weatherDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, 1);
+            var forecast = await _weatherService.GetForecastByCityNameAsync(cityName, 1);
+            var forecastDay = forecast.Days.FirstOrDefault();
 
-            Assert.That(weatherDescription, Does.Match(cityName + " weather forecast:(\r\n|\r|\n)Day 1: -?(\\d+(?:[\\.\\,]\\d{1,2})?) °C\\. ([^.]+)\\."));
+            Assert.That(forecast.CityName, Is.EqualTo(cityName));
+            Assert.That(forecast.Days.Count, Is.EqualTo(1));
+            Assert.That(forecastDay.Date.Date, Is.EqualTo(DateTime.Now.AddDays(1).Date));
+            Assert.That(forecastDay.Temperature.ToString(CultureInfo.InvariantCulture), Does.Match("-?(\\d+(?:[\\.\\,]\\d{1,2})?)"));
+            Assert.That(string.IsNullOrWhiteSpace(forecastDay.Comment), Is.False);
         }
 
         [Test]

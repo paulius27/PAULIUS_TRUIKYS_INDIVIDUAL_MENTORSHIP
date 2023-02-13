@@ -1,29 +1,42 @@
 ﻿using BL;
+using System.Text;
 
 namespace ConsoleApp.Commands;
 
 public class ForecastWeatherCommand : ICommand
 {
     private IWeatherService _weatherService;
+    private string _cityName;
+    private int _days;
 
-    public ForecastWeatherCommand(IWeatherService weatherService)
+    public ForecastWeatherCommand(IWeatherService weatherService, string cityName, int days)
     {
         _weatherService = weatherService;
+        _cityName = cityName;
+        _days = days;
     }
 
-    public async Task Execute()
+    public async Task<string> Execute()
     {
-        Console.Write("Enter city name: ");
-        var cityName = Console.ReadLine() ?? "";
-
-        Console.Write("Enter how many days to forecast: ");
-        if (!int.TryParse(Console.ReadLine(), out int days)) 
+        try
         {
-            Console.WriteLine("Input for 'days' must be a number.");
-            return;
-        }
+            var forecast = await _weatherService.GetForecastByCityNameAsync(_cityName, _days);
 
-        var forecastDescription = await _weatherService.GetForecastDescriptionByCityNameAsync(cityName, days);
-        Console.WriteLine(forecastDescription);
+            var i = 0;
+            var sb = new StringBuilder($"{_cityName} weather forecast:");
+
+            foreach (var forecastDay in forecast.Days)
+            {
+                i++;
+                sb.AppendLine();
+                sb.Append($"Day {i}: {forecastDay.Temperature} °C. {forecastDay.Comment}.");
+            }
+
+            return sb.ToString();
+        }
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}.";
+        }
     }
 }

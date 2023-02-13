@@ -8,8 +8,10 @@ namespace DAL
 {
     public interface IWeatherRepository
     {
-        Task<double> GetTemperatureByCityNameAsync(string cityName, CancellationToken cancellationToken = default);
+        Task<double> GetTemperatureByCityNameAsync(string cityName);
 
-        Task<IEnumerable<WeatherForecast>> GetForecastByCoordinatesAsync(Coordinates coordinates, DateTime startDate, DateTime endDate);
+        Task<double> GetTemperatureByCityNameAsync(string cityName, CancellationToken cancellationToken);
+
+        Task<IEnumerable<WeatherForecastData>> GetForecastByCoordinatesAsync(Coordinates coordinates, DateTime startDate, DateTime endDate);
     }
 }

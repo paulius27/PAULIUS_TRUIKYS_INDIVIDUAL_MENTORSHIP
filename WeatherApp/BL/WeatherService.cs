@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BL.Extensions;
+using BL.Models;
 using BL.Validation;
 using DAL;
 using Microsoft.Extensions.Configuration;
@@ -35,56 +37,40 @@ namespace BL
                 _findMaxTemperatureTimeoutMs = 5000;
         }
 
-        public async Task<string> GetWeatherDescriptionByCityNameAsync(string cityName)
+        public async Task<Weather> GetWeatherByCityNameAsync(string cityName)
         {
             if (!_cityNameValidator.Validate(cityName))
-                return "Error: city name is not valid.";
+                throw new ArgumentException("city name is not valid", nameof(cityName));
             
-            try
-            {
-                double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
-                return $"In {cityName} {temperature} °C. {GetTemperatureComment(temperature)}.";
-            }
-            catch (Exception ex)
-            {
-                return $"Error: failed to get weather data ({ex.Message}).";
-            }
+            double temperature = await _weatherRepository.GetTemperatureByCityNameAsync(cityName);
+
+            return new Weather(cityName, temperature, temperature.GetTemperatureComment());
         }
 
-        public async Task<string> GetForecastDescriptionByCityNameAsync(string cityName, int days)
+        public async Task<WeatherForecast> GetForecastByCityNameAsync(string cityName, int days)
         {
             if (!_cityNameValidator.Validate(cityName))
-                return "Error: city name is not valid.";
+                throw new ArgumentException("city name is not valid", nameof(cityName));
 
             if (!_forecastDaysValidator.Validate(days))
-                return "Error: forecast days are not valid.";
+                throw new ArgumentException("forecast days are not valid", nameof(days));
 
-            try
+            var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
+
+            DateTime startDate = DateTime.Now.AddDays(1);
+            DateTime endDate = startDate.AddDays(days - 1);
+            var forecastsData = await _weatherRepository.GetForecastByCoordinatesAsync(coordinates, startDate, endDate);
+
+            var forecastDays = new List<WeatherForecastDay>();
+
+            foreach (var forecastsDataEntry in forecastsData)
             {
-                var coordinates = await _geocodingRepository.GetCoordinatesByCityNameAsync(cityName);
-
-                DateTime startDate = DateTime.Now.AddDays(1);
-                DateTime endDate = startDate.AddDays(days - 1);
-                var forecasts = await _weatherRepository.GetForecastByCoordinatesAsync(coordinates, startDate, endDate);
-
-                var i = 0;
-                var sb = new StringBuilder($"{cityName} weather forecast:");
-
-                foreach (var forecast in forecasts)
-                {
-                    double temperature = Math.Round((forecast.MinTemperature + forecast.MaxTemperature) / 2, 2);
-
-                    i++;
-                    sb.AppendLine();
-                    sb.Append($"Day {i}: {temperature} °C. {GetTemperatureComment(temperature)}.");
-                }
-
-                return sb.ToString();
+                double temperature = Math.Round((forecastsDataEntry.MinTemperature + forecastsDataEntry.MaxTemperature) / 2, 2);
+                var forecastDay = new WeatherForecastDay(forecastsDataEntry.Date, temperature, temperature.GetTemperatureComment());
+                forecastDays.Add(forecastDay);
             }
-            catch (Exception ex)
-            {
-                return $"Error: failed to get weather forecast data ({ex.Message}).";
-            }
+
+            return new WeatherForecast(cityName, forecastDays);
         }
 
         public async Task<string> GetMaxTemperatureByCityNamesAsync(IEnumerable<string> cityNames)
@@ -161,18 +147,6 @@ namespace BL
             {
                 return (null, $"City: {cityName}. Error: failed to get weather data ({ex.Message}). Timer: {sw.Elapsed.TotalMilliseconds} ms.", false);
             }
-        }
-
-        private string GetTemperatureComment(double temperature)
-        {
-            if (temperature < 0)
-                return "Dress warmly";
-            else if (temperature < 20)
-                return "It's fresh";
-            else if (temperature < 30)
-                return "Good weather";
-            else
-                return "It's time to go to the beach";
         }
     }
 }

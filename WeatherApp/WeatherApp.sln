@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BL", "BL\BL.csproj", "{89EB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{2B8489B5-B7C8-46A8-A1CD-5A24A94B3142}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{073496DB-6EF7-4A04-AB11-51ED26CF68EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{073496DB-6EF7-4A04-AB11-51ED26CF68EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{8CFED054-5484-46AC-A710-D1286895E87F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{8CFED054-5484-46AC-A710-D1286895E87F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebAPI\WebAPI.csproj", "{C461E2CE-1D0D-4A3A-BC16-6C6809AABAB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{8CFED054-5484-46AC-A710-D1286895E87F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CFED054-5484-46AC-A710-D1286895E87F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CFED054-5484-46AC-A710-D1286895E87F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C461E2CE-1D0D-4A3A-BC16-6C6809AABAB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C461E2CE-1D0D-4A3A-BC16-6C6809AABAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C461E2CE-1D0D-4A3A-BC16-6C6809AABAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C461E2CE-1D0D-4A3A-BC16-6C6809AABAB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

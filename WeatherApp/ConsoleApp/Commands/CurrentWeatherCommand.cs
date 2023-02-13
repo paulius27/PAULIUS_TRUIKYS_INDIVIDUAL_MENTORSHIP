@@ -6,17 +6,24 @@ public class CurrentWeatherCommand : ICommand
 {
     private IWeatherService _weatherService;
 
-    public CurrentWeatherCommand(IWeatherService weatherService)
+    private string _cityName;
+
+    public CurrentWeatherCommand(IWeatherService weatherService, string cityName)
     {
         _weatherService = weatherService;
+        _cityName = cityName;
     }
 
-    public async Task Execute()
+    public async Task<string> Execute()
     {
-        Console.Write("Enter city name: ");
-        var cityName = Console.ReadLine() ?? "";
-
-        var weatherDescription = await _weatherService.GetWeatherDescriptionByCityNameAsync(cityName);
-        Console.WriteLine(weatherDescription);
+        try
+        {
+            var weather = await _weatherService.GetWeatherByCityNameAsync(_cityName);
+            return $"In {weather.CityName} {weather.Temperature} °C. {weather.Comment}.";
+        }
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}.";
+        }
     }
 }
