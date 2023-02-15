@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ConsoleApp.Commands;
 
-public class ForecastWeatherCommand : ICommand
+public class ForecastWeatherCommand : ICommand<string>
 {
     private IWeatherService _weatherService;
     private string _cityName;

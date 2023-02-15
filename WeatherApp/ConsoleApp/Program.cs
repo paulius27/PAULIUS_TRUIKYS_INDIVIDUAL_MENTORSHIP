@@ -39,7 +39,7 @@ while (true)
         var input = Console.ReadKey().KeyChar;
         Console.WriteLine();
 
-        ICommand command;
+        ICommand<string> command;
 
         if (input == '1')
         {
