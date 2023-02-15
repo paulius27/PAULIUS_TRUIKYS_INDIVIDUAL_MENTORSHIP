@@ -1,11 +1,15 @@
 using BL;
 using BL.Validation;
 using DAL;
+using Quartz;
+using WebAPI;
+using WebAPI.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.Configure<WeatherHistoryOptions>(builder.Configuration.GetSection("WeatherHistory"));
 
+// Add services to the container.
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -19,6 +23,16 @@ builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();
 builder.Services.AddScoped<IValidator<string>, CityNameValidator>();
 builder.Services.AddScoped<IValidator<int>, ForecastDaysValidator>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+});
+builder.Services.AddQuartzHostedService(opt =>
+{
+    opt.WaitForJobsToComplete = true;
+});
+builder.Services.AddHostedService<Scheduler>();
 
 var app = builder.Build();
 
