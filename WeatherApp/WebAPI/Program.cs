@@ -1,6 +1,8 @@
 using BL;
 using BL.Validation;
 using DAL;
+using DAL.Context;
+using Microsoft.EntityFrameworkCore;
 using Quartz;
 using WebAPI;
 using WebAPI.Options;
@@ -8,6 +10,8 @@ using WebAPI.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<WeatherHistoryOptions>(builder.Configuration.GetSection("WeatherHistory"));
+
+builder.Services.AddDbContext<WeatherDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -20,6 +24,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IGeocodingRepository, GeocodingRepository>();
 builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();
+builder.Services.AddScoped<IWeatherHistoryRepository, WeatherHistoryRepository>();
 builder.Services.AddScoped<IValidator<string>, CityNameValidator>();
 builder.Services.AddScoped<IValidator<int>, ForecastDaysValidator>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
