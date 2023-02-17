@@ -21,15 +21,16 @@ namespace BL
 
         public async Task UpdateWeatherHistory(IEnumerable<string> cityNames)
         {
-            var requests = new List<Task<Weather>>();
+            var requests = new List<Task<Weather?>>();
 
             foreach (var cityName in cityNames)
-                requests.Add(_weatherService.GetWeatherByCityNameAsync(cityName));
+                requests.Add(TryGetCurrentWeather(cityName));
 
             var weatherResults = await Task.WhenAll(requests);
 
             var weatherHistoryEntries = weatherResults
-                .Select(weather => new WeatherHistoryEntry 
+                .Where(weather => weather != null)
+                .Select(weather => new WeatherHistoryEntry
                     {
                         CityName = weather.CityName,
                         Temperature = weather.Temperature,
@@ -38,6 +39,19 @@ namespace BL
                 );
 
             await _weatherHistoryRepository.InsertMany(weatherHistoryEntries);
+        }
+
+        private async Task<Weather?> TryGetCurrentWeather(string cityName)
+        {
+            try
+            {
+                return await _weatherService.GetWeatherByCityNameAsync(cityName);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
     }
 }
