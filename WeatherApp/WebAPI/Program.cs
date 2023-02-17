@@ -28,6 +28,7 @@ builder.Services.AddScoped<IWeatherHistoryRepository, WeatherHistoryRepository>(
 builder.Services.AddScoped<IValidator<string>, CityNameValidator>();
 builder.Services.AddScoped<IValidator<int>, ForecastDaysValidator>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddScoped<IWeatherHistoryService, WeatherHistoryService>();
 
 builder.Services.AddQuartz(q =>
 {
