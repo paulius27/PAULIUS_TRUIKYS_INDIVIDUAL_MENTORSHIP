@@ -1,5 +1,7 @@
 using BL;
+using BL.Models;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Responses;
 
 namespace WebAPI.Controllers;
 
@@ -15,6 +17,9 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("Current")]
+    [ProducesResponseType(typeof(Weather), 200)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCurrentWeather(string cityName)
     {
         var weather = await _weatherService.GetWeatherByCityNameAsync(cityName);
@@ -22,6 +27,10 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("Forecast")]
+    [ProducesResponseType(typeof(WeatherForecast), 200)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetWeatherForecast(string cityName, int days)
     {
         var forecast = await _weatherService.GetForecastByCityNameAsync(cityName, days);
