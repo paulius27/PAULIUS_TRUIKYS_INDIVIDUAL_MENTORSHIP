@@ -4,10 +4,19 @@ using DAL;
 using DAL.Context;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using Serilog;
 using WebAPI;
 using WebAPI.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 builder.Services.Configure<WeatherHistoryOptions>(builder.Configuration.GetSection("WeatherHistory"));
 

@@ -1,6 +1,7 @@
 ﻿using BL.Models;
 using DAL;
 using DAL.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,13 @@ namespace BL
 {
     public class WeatherHistoryService : IWeatherHistoryService
     {
+        private readonly ILogger _logger;
         private readonly IWeatherHistoryRepository _weatherHistoryRepository;
         private readonly IWeatherService _weatherService;
 
-        public WeatherHistoryService(IWeatherHistoryRepository weatherHistoryRepository, IWeatherService weatherService) 
+        public WeatherHistoryService(ILogger<WeatherHistoryService> logger, IWeatherHistoryRepository weatherHistoryRepository, IWeatherService weatherService) 
         {
+            _logger = logger;
             _weatherHistoryRepository = weatherHistoryRepository;
             _weatherService = weatherService;
         }
@@ -49,7 +52,7 @@ namespace BL
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogError(ex, "Failed to get current weather for city: {0}.", cityName);
                 return null;
             }
         }
