@@ -17,7 +17,7 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("Current")]
-    [ProducesResponseType(typeof(Weather), 200)]
+    [ProducesResponseType(typeof(Weather), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCurrentWeather(string cityName)
@@ -27,7 +27,7 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("Forecast")]
-    [ProducesResponseType(typeof(WeatherForecast), 200)]
+    [ProducesResponseType(typeof(WeatherForecast), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
