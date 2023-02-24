@@ -32,10 +32,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IGeocodingRepository, GeocodingRepository>();
+builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<IWeatherRepository, WeatherRepository>();
 builder.Services.AddScoped<IWeatherHistoryRepository, WeatherHistoryRepository>();
 builder.Services.AddScoped<IValidator<string>, CityNameValidator>();
 builder.Services.AddScoped<IValidator<int>, ForecastDaysValidator>();
+builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IWeatherHistoryService, WeatherHistoryService>();
 
