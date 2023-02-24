@@ -3,7 +3,7 @@ using Quartz;
 using WebAPI.Jobs;
 using WebAPI.Options;
 
-namespace WebAPI
+namespace WebAPI.Scheduler
 {
     public class Scheduler : IHostedService
     {
@@ -48,7 +48,7 @@ namespace WebAPI
                     .WithIdentity($"{cityNamesString}Job", "WeatherHistoryJobs")
                     .Build();
 
-                job.JobDataMap["cityNames"] = cityNames;
+                job.JobDataMap[SchedulerJobDataConstants.CityNames] = cityNames;
 
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity($"{cityNamesString}Trigger", "WeatherHistoryTriggers")

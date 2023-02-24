@@ -5,8 +5,8 @@ using DAL.Context;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Serilog;
-using WebAPI;
 using WebAPI.Options;
+using WebAPI.Scheduler;
 
 var builder = WebApplication.CreateBuilder(args);
 

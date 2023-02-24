@@ -1,5 +1,6 @@
 ﻿using BL;
 using Quartz;
+using WebAPI.Scheduler;
 
 namespace WebAPI.Jobs
 {
@@ -14,7 +15,11 @@ namespace WebAPI.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var cityNames = (string[])context.MergedJobDataMap["cityNames"];
+            var cityNames = (string[])context.MergedJobDataMap[SchedulerJobDataConstants.CityNames];
+
+            if (cityNames == null)
+                return;
+
             await _weatherHistoryService.UpdateWeatherHistory(cityNames);
         }
     }
