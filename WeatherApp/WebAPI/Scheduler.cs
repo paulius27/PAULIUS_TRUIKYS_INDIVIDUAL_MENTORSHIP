@@ -41,7 +41,7 @@ namespace WebAPI
             foreach (var cityGroup in cityGroups)
             {
                 int timerSec = cityGroup.Key;
-                var cityNames = cityGroup.Select(c => c.Name).ToList();
+                var cityNames = cityGroup.Select(c => c.Name).ToArray();
                 var cityNamesString = string.Join(",", cityNames);
 
                 var job = JobBuilder.Create<UpdateWeatherHistoryJob>()

@@ -14,7 +14,7 @@ namespace WebAPI.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var cityNames = (IEnumerable<string>)context.MergedJobDataMap["cityNames"];
+            var cityNames = (string[])context.MergedJobDataMap["cityNames"];
             await _weatherHistoryService.UpdateWeatherHistory(cityNames);
         }
     }

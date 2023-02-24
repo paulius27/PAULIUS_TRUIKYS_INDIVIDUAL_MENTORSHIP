@@ -5,6 +5,6 @@ namespace BL
 {
     public  interface IWeatherHistoryService
     {
-        Task UpdateWeatherHistory(IEnumerable<string> cityNames);
+        Task UpdateWeatherHistory(params string[] cityNames);
     }
 }

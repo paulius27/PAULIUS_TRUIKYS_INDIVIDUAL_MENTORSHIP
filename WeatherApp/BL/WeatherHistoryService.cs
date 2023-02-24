@@ -22,7 +22,7 @@ namespace BL
             _weatherService = weatherService;
         }
 
-        public async Task UpdateWeatherHistory(IEnumerable<string> cityNames)
+        public async Task UpdateWeatherHistory(params string[] cityNames)
         {
             var requests = new List<Task<Weather?>>();
 
