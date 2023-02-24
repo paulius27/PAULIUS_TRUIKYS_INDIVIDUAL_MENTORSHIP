@@ -2,7 +2,7 @@
 
 namespace ConsoleApp.Commands;
 
-public class CurrentWeatherCommand : ICommand
+public class CurrentWeatherCommand : ICommand<string>
 {
     private IWeatherService _weatherService;
 

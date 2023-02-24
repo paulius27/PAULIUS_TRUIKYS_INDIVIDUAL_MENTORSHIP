@@ -1,6 +1,6 @@
 ﻿namespace ConsoleApp.Commands;
 
-public interface ICommand
+public interface ICommand<T>
 {
-    Task<string> Execute();
+    Task<T> Execute();
 }

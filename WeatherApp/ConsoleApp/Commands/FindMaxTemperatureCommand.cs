@@ -2,7 +2,7 @@
 
 namespace ConsoleApp.Commands;
 
-internal class FindMaxTemperatureCommand : ICommand
+internal class FindMaxTemperatureCommand : ICommand<string>
 {
     private IWeatherService _weatherService;
 
