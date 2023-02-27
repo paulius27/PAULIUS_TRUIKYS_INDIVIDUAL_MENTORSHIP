@@ -2,9 +2,9 @@
 
 namespace BL.Models
 {
-    public class TimeInterval
+    public class TimeRange
     {
-        public TimeInterval(DateTime start, DateTime end)
+        public TimeRange(DateTime start, DateTime end)
         {
             Start = start;
             End = end;
