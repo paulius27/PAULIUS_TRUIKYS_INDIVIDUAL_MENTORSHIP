@@ -24,6 +24,18 @@ namespace BL
             _weatherService = weatherService;
         }
 
+        public async Task<WeatherHistory> GetWeatherHistory(string cityName, DateTime from, DateTime to)
+        {
+            var city = await _cityService.FindCity(cityName);
+            var weatherHistoryEntries = await _weatherHistoryRepository.FindByCityIdAndTimeRange(city.Id, from, to);
+
+            var weatherHistoryData = weatherHistoryEntries
+                .Select(w => new WeatherHistoryDataEntry(w.Temperature, w.Time))
+                .ToList();
+
+            return new WeatherHistory(city.Name, weatherHistoryData);
+        }
+
         public async Task UpdateWeatherHistory(params string[] cityNames)
         {
             var cities = await _cityService.FindOrAddCities(cityNames);
