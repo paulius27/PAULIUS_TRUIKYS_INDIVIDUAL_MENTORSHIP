@@ -1,13 +1,10 @@
 ﻿using BL;
 using BL.Models;
 using BL.Validation;
-using Castle.Core.Logging;
 using DAL;
 using DAL.Models;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Text.Json;
 
 namespace Tests
 {
@@ -34,7 +31,7 @@ namespace Tests
         }
 
         [Test]
-        public void GetWeatherHistory_TimeRangeValidationFail_Error()
+        public void GetWeatherHistory_TimeRangeValidationFail_Error() 
         {
             _timeRangeValidator.Setup(v => v.Validate(It.IsAny<TimeRange>())).Returns(false);
 
@@ -50,14 +47,14 @@ namespace Tests
         public void GetWeatherHistory_FindCityFail_Error()
         {
             _timeRangeValidator.Setup(v => v.Validate(It.IsAny<TimeRange>())).Returns(true);
-            _cityService.Setup(c => c.FindCity(It.IsAny<string>())).ThrowsAsync(new ArgumentException("city name is not valid", "cityName"));
+            _cityService.Setup(c => c.FindCity(It.IsAny<string>())).ReturnsAsync((City?)null);
 
-            var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
             {
-                await _weatherHistoryService.GetWeatherHistory("Paris", new DateTime(2023, 1, 1), new DateTime(2023, 2, 1));
+                await _weatherHistoryService.GetWeatherHistory("?", new DateTime(2023, 1, 1), new DateTime(2023, 2, 1));
             });
 
-            Assert.That(ex.Message, Is.EqualTo("city name is not valid (Parameter 'cityName')"));
+            Assert.That(ex.Message, Is.EqualTo("city not found"));
         }
 
         [Test]

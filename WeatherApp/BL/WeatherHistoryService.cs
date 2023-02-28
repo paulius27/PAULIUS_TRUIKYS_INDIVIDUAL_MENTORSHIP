@@ -33,6 +33,10 @@ namespace BL
                 throw new ArgumentException("time range is not valid");
 
             var city = await _cityService.FindCity(cityName);
+
+            if (city == null)
+                throw new KeyNotFoundException("city not found");
+
             var weatherHistoryEntries = await _weatherHistoryRepository.FindByCityIdAndTimeRange(city.Id, from, to);
 
             var weatherHistoryData = weatherHistoryEntries

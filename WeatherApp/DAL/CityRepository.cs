@@ -19,7 +19,7 @@ namespace DAL
 
         public async Task<City> FindByName(string cityName)
         {
-            return await _context.Cities.SingleAsync(city => city.Name == cityName);
+            return await _context.Cities.Where(city => city.Name == cityName).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<City>> FindByNames(params string[] cityNames)
