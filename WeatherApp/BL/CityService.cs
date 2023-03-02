@@ -1,4 +1,5 @@
-﻿using DAL;
+﻿using BL.Validation;
+using DAL;
 using DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,20 @@ namespace BL
     public class CityService : ICityService
     {
         private readonly ICityRepository _cityRepository;
+        private readonly IValidator<string> _cityNameValidator;
 
-        public CityService(ICityRepository cityRepository)
+        public CityService(ICityRepository cityRepository, IValidator<string> cityNameValidator)
         {
             _cityRepository = cityRepository;
+            _cityNameValidator = cityNameValidator;
+        }
+
+        public async Task<City> FindCity(string cityName)
+        {
+            if (!_cityNameValidator.Validate(cityName))
+                throw new ArgumentException("city name is not valid", nameof(cityName));
+
+            return await _cityRepository.FindByName(cityName);
         }
 
         public async Task<IEnumerable<City>> FindOrAddCities(params string[] cityNames)

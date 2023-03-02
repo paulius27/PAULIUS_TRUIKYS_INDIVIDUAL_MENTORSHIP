@@ -1,4 +1,5 @@
 ﻿using BL.Models;
+using BL.Validation;
 using DAL;
 using DAL.Models;
 using Microsoft.Extensions.Logging;
@@ -15,13 +16,34 @@ namespace BL
         private readonly ICityService _cityService;
         private readonly IWeatherHistoryRepository _weatherHistoryRepository;
         private readonly IWeatherService _weatherService;
+        private readonly IValidator<TimeRange> _timeRangeValidator;
 
-        public WeatherHistoryService(ILogger<WeatherHistoryService> logger, ICityService cityService, IWeatherHistoryRepository weatherHistoryRepository, IWeatherService weatherService) 
+        public WeatherHistoryService(ILogger<WeatherHistoryService> logger, ICityService cityService, IWeatherHistoryRepository weatherHistoryRepository, IWeatherService weatherService, IValidator<TimeRange> timeRangeValidator) 
         {
             _logger = logger;
             _cityService = cityService;
             _weatherHistoryRepository = weatherHistoryRepository;
             _weatherService = weatherService;
+            _timeRangeValidator = timeRangeValidator;
+        }
+
+        public async Task<WeatherHistory> GetWeatherHistory(string cityName, TimeRange timeRange)
+        {
+            if (!_timeRangeValidator.Validate(timeRange))
+                throw new ArgumentException("time range is not valid");
+
+            var city = await _cityService.FindCity(cityName);
+
+            if (city == null)
+                throw new KeyNotFoundException("city not found");
+
+            var weatherHistoryEntries = await _weatherHistoryRepository.FindByCityIdAndTimeRange(city.Id, timeRange);
+
+            var weatherHistoryData = weatherHistoryEntries
+                .Select(w => new WeatherHistoryDataEntry(w.Temperature, w.Time))
+                .ToList();
+
+            return new WeatherHistory(city.Name, weatherHistoryData);
         }
 
         public async Task UpdateWeatherHistory(params string[] cityNames)

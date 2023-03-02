@@ -6,6 +6,8 @@ namespace BL
 {
     public interface ICityService
     {
+        Task<City> FindCity(string cityName);
+
         Task<IEnumerable<City>> FindOrAddCities(params string[] cityNames);
     }
 }
