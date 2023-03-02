@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BL.Models
+namespace DAL.Models
 {
     public class TimeRange
     {

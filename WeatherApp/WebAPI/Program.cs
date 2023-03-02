@@ -1,8 +1,8 @@
 using BL;
-using BL.Models;
 using BL.Validation;
 using DAL;
 using DAL.Context;
+using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Serilog;

@@ -1,5 +1,4 @@
 ﻿using DAL.Models;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,7 +6,7 @@ namespace DAL
 {
     public interface IWeatherHistoryRepository
     {
-        Task<IEnumerable<WeatherHistoryEntry>> FindByCityIdAndTimeRange(int cityId, DateTime from, DateTime to);
+        Task<IEnumerable<WeatherHistoryEntry>> FindByCityIdAndTimeRange(int cityId, TimeRange timeRange);
 
         Task InsertMany(IEnumerable<WeatherHistoryEntry> weatherHistoryEntries);
     }

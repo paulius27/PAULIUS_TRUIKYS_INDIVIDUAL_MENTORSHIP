@@ -1,4 +1,4 @@
-﻿using BL.Models;
+﻿using DAL.Models;
 
 namespace BL.Validation
 {

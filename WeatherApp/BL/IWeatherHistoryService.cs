@@ -1,12 +1,12 @@
 ﻿using BL.Models;
-using System;
+using DAL.Models;
 using System.Threading.Tasks;
 
 namespace BL
 {
     public  interface IWeatherHistoryService
     {
-        Task<WeatherHistory> GetWeatherHistory(string cityName, DateTime from, DateTime to);
+        Task<WeatherHistory> GetWeatherHistory(string cityName, TimeRange timeRange);
 
         Task UpdateWeatherHistory(params string[] cityNames);
     }

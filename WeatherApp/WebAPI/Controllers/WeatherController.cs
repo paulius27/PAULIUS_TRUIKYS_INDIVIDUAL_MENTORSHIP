@@ -1,5 +1,6 @@
 using BL;
 using BL.Models;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Responses;
 
@@ -46,7 +47,7 @@ public class WeatherController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetWeatherHistory(string cityName, DateTime from, DateTime to)
     {
-        var history = await _weatherHistoryService.GetWeatherHistory(cityName, from, to);
+        var history = await _weatherHistoryService.GetWeatherHistory(cityName, new TimeRange(from, to));
         return Ok(history);
     }
 }

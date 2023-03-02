@@ -37,7 +37,7 @@ namespace Tests
 
             var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _weatherHistoryService.GetWeatherHistory("Paris", new DateTime(2023, 1, 1), new DateTime(2022, 1, 1));
+                await _weatherHistoryService.GetWeatherHistory("Paris", new TimeRange(new DateTime(2023, 1, 1), new DateTime(2022, 1, 1)));
             });
 
             Assert.That(ex.Message, Is.EqualTo("time range is not valid"));
@@ -51,7 +51,7 @@ namespace Tests
 
             var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
             {
-                await _weatherHistoryService.GetWeatherHistory("?", new DateTime(2023, 1, 1), new DateTime(2023, 2, 1));
+                await _weatherHistoryService.GetWeatherHistory("?", new TimeRange(new DateTime(2023, 1, 1), new DateTime(2023, 2, 1)));
             });
 
             Assert.That(ex.Message, Is.EqualTo("city not found"));
@@ -68,9 +68,9 @@ namespace Tests
 
             _timeRangeValidator.Setup(v => v.Validate(It.IsAny<TimeRange>())).Returns(true);
             _cityService.Setup(c => c.FindCity(It.IsAny<string>())).ReturnsAsync(city);
-            _weatherHistoryRepository.Setup(w => w.FindByCityIdAndTimeRange(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(weatherHistoryData);
+            _weatherHistoryRepository.Setup(w => w.FindByCityIdAndTimeRange(It.IsAny<int>(), It.IsAny<TimeRange>())).ReturnsAsync(weatherHistoryData);
 
-            var weatherHistory = await _weatherHistoryService.GetWeatherHistory(city.Name, new DateTime(2023, 2, 1), new DateTime(2023, 2, 3));
+            var weatherHistory = await _weatherHistoryService.GetWeatherHistory(city.Name, new TimeRange(new DateTime(2023, 2, 1), new DateTime(2023, 2, 3)));
 
             Assert.That(weatherHistory.CityName, Is.EqualTo(city.Name));
             Assert.That(weatherHistory.Data.Count, Is.EqualTo(1));

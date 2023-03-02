@@ -1,6 +1,5 @@
 ﻿using DAL.Context;
 using DAL.Models;
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,11 +16,11 @@ namespace DAL
             _context = context;
         }
 
-        public async Task<IEnumerable<WeatherHistoryEntry>> FindByCityIdAndTimeRange(int cityId, DateTime from, DateTime to)
+        public async Task<IEnumerable<WeatherHistoryEntry>> FindByCityIdAndTimeRange(int cityId, TimeRange timeRange)
         {
             var weatherHistory = await _context.WeatherHistory
                 .Where(wh => wh.CityId == cityId)
-                .Where(wh => wh.Time >= from && wh.Time <= to)
+                .Where(wh => wh.Time >= timeRange.Start && wh.Time <= timeRange.End)
                 .ToListAsync();
 
             return weatherHistory;

@@ -27,9 +27,9 @@ namespace BL
             _timeRangeValidator = timeRangeValidator;
         }
 
-        public async Task<WeatherHistory> GetWeatherHistory(string cityName, DateTime from, DateTime to)
+        public async Task<WeatherHistory> GetWeatherHistory(string cityName, TimeRange timeRange)
         {
-            if (!_timeRangeValidator.Validate(new TimeRange(from, to)))
+            if (!_timeRangeValidator.Validate(timeRange))
                 throw new ArgumentException("time range is not valid");
 
             var city = await _cityService.FindCity(cityName);
@@ -37,7 +37,7 @@ namespace BL
             if (city == null)
                 throw new KeyNotFoundException("city not found");
 
-            var weatherHistoryEntries = await _weatherHistoryRepository.FindByCityIdAndTimeRange(city.Id, from, to);
+            var weatherHistoryEntries = await _weatherHistoryRepository.FindByCityIdAndTimeRange(city.Id, timeRange);
 
             var weatherHistoryData = weatherHistoryEntries
                 .Select(w => new WeatherHistoryDataEntry(w.Temperature, w.Time))
