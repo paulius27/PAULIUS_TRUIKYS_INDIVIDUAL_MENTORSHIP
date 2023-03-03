@@ -23,6 +23,13 @@ builder.Services.Configure<WeatherHistoryOptions>(builder.Configuration.GetSecti
 
 builder.Services.AddDbContext<WeatherDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddAuthentication("Bearer")
+    .AddIdentityServerAuthentication("Bearer", options =>
+    {
+        options.ApiName = "weatherapi";
+        options.Authority = "https://localhost:7142";
+    });
+
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -66,6 +73,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
