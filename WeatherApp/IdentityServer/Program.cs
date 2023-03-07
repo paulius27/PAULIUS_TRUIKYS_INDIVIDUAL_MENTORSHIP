@@ -1,15 +1,22 @@
 using IdentityServer;
-using IdentityServer4.Models;
-using IdentityServer4.Test;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("Default");
+var migrationAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
+
 builder.Services.AddIdentityServer()
-    .AddInMemoryClients(Config.Clients)
-    .AddInMemoryIdentityResources(Config.IdentityResources)
-    .AddInMemoryApiResources(Config.ApiResources)
-    .AddInMemoryApiScopes(Config.ApiScopes)
     .AddTestUsers(Config.Users)
+    .AddConfigurationStore(options => 
+    { 
+        options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString, opt => opt.MigrationsAssembly(migrationAssembly));
+    })
+    .AddOperationalStore(options =>
+    {
+        options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString, opt => opt.MigrationsAssembly(migrationAssembly));
+    })
     .AddDeveloperSigningCredential();
 
 var app = builder.Build();
