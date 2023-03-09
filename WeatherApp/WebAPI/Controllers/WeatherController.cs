@@ -1,6 +1,7 @@
 using BL;
 using BL.Models;
 using DAL.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Responses;
 
@@ -8,6 +9,7 @@ namespace WebAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class WeatherController : ControllerBase
 {
     private readonly IWeatherService _weatherService;
