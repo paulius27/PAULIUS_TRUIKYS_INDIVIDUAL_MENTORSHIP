@@ -4,6 +4,7 @@ using DAL;
 using DAL.Context;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Serilog;
 using WebAPI.Options;
@@ -24,10 +25,11 @@ builder.Services.Configure<WeatherHistoryOptions>(builder.Configuration.GetSecti
 builder.Services.AddDbContext<WeatherDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddAuthentication("Bearer")
-    .AddIdentityServerAuthentication("Bearer", options =>
+    .AddJwtBearer(options =>
     {
-        options.ApiName = "weatherapi";
-        options.Authority = "https://localhost:7142";
+        options.Authority = builder.Configuration["IdentityServer:Authority"];
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false };
     });
 
 // Add services to the container.

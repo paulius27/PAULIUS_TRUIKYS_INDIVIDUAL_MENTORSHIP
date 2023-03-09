@@ -6,6 +6,8 @@ using Serilog.Sinks.SystemConsole.Themes;
 using System.Reflection;
 using IdentityServer.Data;
 using Microsoft.AspNetCore.Identity;
+using IdentityServer4.Services;
+using IdentityServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,10 +46,12 @@ builder.Services.AddIdentityServer()
     })
     .AddDeveloperSigningCredential();
 
+builder.Services.AddScoped<IProfileService, ProfileService>();
+
 var app = builder.Build();
 
 app.UseIdentityServer();
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "WeatherApi IdentityServer");
 
 app.Run();

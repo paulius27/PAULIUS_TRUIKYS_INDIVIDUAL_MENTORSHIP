@@ -53,74 +53,98 @@ namespace IdentityServer
 
         private static void EnsureUsers(IServiceScope scope)
         {
-            var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            var alice = userMgr.FindByNameAsync("alice").Result;
-            if (alice == null)
+            var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userRole = roleMgr.FindByNameAsync("user").Result;
+            if (userRole == null)
             {
-                alice = new IdentityUser
+                userRole = new IdentityRole
                 {
-                    UserName = "alice",
-                    Email = "AliceSmith@email.com",
+                    Name = "user"
+                };
+                _ = roleMgr.CreateAsync(userRole).Result;
+            }
+
+            var adminRole = roleMgr.FindByNameAsync("admin").Result;
+            if (adminRole == null)
+            {
+                adminRole = new IdentityRole
+                {
+                    Name = "admin"
+                };
+                _ = roleMgr.CreateAsync(adminRole).Result;
+            }
+
+            var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var user = userMgr.FindByNameAsync("user").Result;
+            if (user == null)
+            {
+                user = new IdentityUser
+                {
+                    UserName = "user",
+                    Email = "user@email.com",
                     EmailConfirmed = true,
                 };
-                var result = userMgr.CreateAsync(alice, "Pass123$").Result;
+                var result = userMgr.CreateAsync(user, "Pass123$").Result;
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
 
-                result = userMgr.AddClaimsAsync(alice, new Claim[]
+                result = userMgr.AddClaimsAsync(user, new Claim[]
                 {
-                    new Claim(JwtClaimTypes.Name, "Alice Smith"),
-                    new Claim(JwtClaimTypes.GivenName, "Alice"),
-                    new Claim(JwtClaimTypes.FamilyName, "Smith"),
-                    new Claim(JwtClaimTypes.WebSite, "http://alice.com"),
+                    new Claim(JwtClaimTypes.Name, "User Test"),
                 }).Result;
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
 
-                Log.Debug("alice created");
+                if (!userMgr.IsInRoleAsync(user, userRole.Name).Result)
+                {
+                    _ = userMgr.AddToRoleAsync(user, userRole.Name).Result;
+                }
+
+                Log.Debug("user created");
             }
             else
             {
-                Log.Debug("alice already exists");
+                Log.Debug("user already exists");
             }
 
-            var bob = userMgr.FindByNameAsync("bob").Result;
-            if (bob == null)
+            var adminUser = userMgr.FindByNameAsync("admin").Result;
+            if (adminUser == null)
             {
-                bob = new IdentityUser
+                adminUser = new IdentityUser
                 {
-                    UserName = "bob",
-                    Email = "BobSmith@email.com",
+                    UserName = "admin",
+                    Email = "admin@email.com",
                     EmailConfirmed = true
                 };
-                var result = userMgr.CreateAsync(bob, "Pass123$").Result;
+                var result = userMgr.CreateAsync(adminUser, "Pass123$").Result;
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
 
-                result = userMgr.AddClaimsAsync(bob, new Claim[]
+                result = userMgr.AddClaimsAsync(adminUser, new Claim[]
                 {
-                    new Claim(JwtClaimTypes.Name, "Bob Smith"),
-                    new Claim(JwtClaimTypes.GivenName, "Bob"),
-                    new Claim(JwtClaimTypes.FamilyName, "Smith"),
-                    new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
-                    new Claim("location", "somewhere")
+                    new Claim(JwtClaimTypes.Name, "Admin Test"),
                 }).Result;
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
 
-                Log.Debug("bob created");
+                if (!userMgr.IsInRoleAsync(adminUser, adminRole.Name).Result)
+                {
+                    _ = userMgr.AddToRoleAsync(adminUser, adminRole.Name).Result;
+                }
+
+                Log.Debug("admin created");
             }
             else
             {
-                Log.Debug("bob already exists");
+                Log.Debug("admin already exists");
             }
         }
 
@@ -162,21 +186,6 @@ namespace IdentityServer
                 foreach (var resource in Config.ApiScopes.ToList())
                 {
                     context.ApiScopes.Add(resource.ToEntity());
-                }
-
-                context.SaveChanges();
-            }
-            else
-            {
-                Log.Debug("ApiScopes already populated");
-            }
-
-            if (!context.ApiResources.Any())
-            {
-                Log.Debug("ApiResources being populated");
-                foreach (var resource in Config.ApiResources.ToList())
-                {
-                    context.ApiResources.Add(resource.ToEntity());
                 }
 
                 context.SaveChanges();
